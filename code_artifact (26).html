@@ -1,0 +1,3483 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="時光守護者" />
+  <title>保良局田家炳小學｜時間間隔：找結束時間</title>
+  <style>
+    /* ============================================================
+     * 1. RESET & DESIGN TOKENS (ZERO EXTERNAL DEPENDENCIES)
+     * ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --font-main: "PingFang HK", "PingFang TC", "Hiragino Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      --font-num: "Trebuchet MS", "Arial Rounded MT Bold", "SF Pro Rounded", "PingFang HK", sans-serif;
+
+      --ink-dark: #1e293b;
+      --ink-navy: #1e1b4b;
+      --ink-muted: #475569;
+
+      --gold-100: #fef9c3;
+      --gold-300: #fde047;
+      --gold-400: #fbbf24;
+      --gold-500: #f59e0b;
+      --gold-700: #b45309;
+
+      --sky-100: #e0f2fe;
+      --sky-400: #38bdf8;
+      --sky-600: #0284c7;
+      --sky-800: #075985;
+
+      --teal-100: #ccfbf1;
+      --teal-500: #14b8a6;
+      --teal-700: #0f766e;
+
+      --emerald-100: #d1fae5;
+      --emerald-500: #10b981;
+      --emerald-700: #047857;
+
+      --orange-100: #ffedd5;
+      --orange-500: #f97316;
+      --orange-700: #c2410c;
+
+      --rose-100: #ffe4e6;
+      --rose-500: #f43f5e;
+      --rose-600: #e11d48;
+      --rose-800: #9f1239;
+
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-pill: 999px;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      font-family: var(--font-main);
+      color: var(--ink-dark);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      background: linear-gradient(155deg, #dbeafe 0%, #c7d2fe 35%, #e0e7ff 68%, #fef3c7 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Ambient soft light blobs */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.72) 0, rgba(255, 255, 255, 0) 28%),
+        radial-gradient(circle at 88% 14%, rgba(254, 240, 138, 0.55) 0, rgba(254, 240, 138, 0) 26%),
+        radial-gradient(circle at 82% 84%, rgba(196, 181, 253, 0.5) 0, rgba(196, 181, 253, 0) 30%),
+        radial-gradient(circle at 15% 82%, rgba(167, 243, 208, 0.45) 0, rgba(167, 243, 208, 0) 28%);
+    }
+
+    .font-num {
+      font-family: var(--font-num);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Semantic Time Highlights in Question Text */
+    .start-blue {
+      display: inline-block;
+      color: #1e3a8a;
+      background: #dbeafe;
+      border: 1.5px solid #93c5fd;
+      padding: 0 7px;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    .duration-red {
+      display: inline-block;
+      color: #dc2626;
+      background: #fee2e2;
+      border: 1.5px solid #fca5a5;
+      padding: 0 7px;
+      border-radius: 8px;
+      font-weight: 900;
+    }
+
+    /* ============================================================
+     * 2. TOP HEADER & IPAD TOOLBAR
+     * ============================================================ */
+    .topbar {
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+      width: 100%;
+      background: linear-gradient(90deg, #312e81 0%, #3730a3 50%, #4338ca 100%);
+      border-bottom: 3px solid var(--gold-400);
+      box-shadow: 0 4px 14px rgba(30, 27, 75, 0.22);
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .topbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 6px max(12px, env(safe-area-inset-right, 12px)) 6px max(12px, env(safe-area-inset-left, 12px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fde047, #f59e0b);
+      border: 2px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      color: #ffffff;
+      font-size: 1.02rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-title span {
+      color: var(--gold-300);
+    }
+
+    .brand-sub {
+      color: #c7d2fe;
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .gem-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.45);
+      border: 2px solid var(--gold-400);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      color: #fef08a;
+      font-weight: 900;
+      font-size: 0.85rem;
+    }
+
+    .gem-pill .gem-num {
+      font-family: var(--font-num);
+      font-size: 0.98rem;
+      color: #ffffff;
+    }
+
+    .tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 36px;
+      padding: 5px 10px;
+      border-radius: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      font-family: var(--font-main);
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .tool-btn:active {
+      transform: translateY(2px);
+    }
+
+    .tool-btn.active-on {
+      background: #10b981;
+      border-color: #a7f3d0;
+      color: #ffffff;
+    }
+
+    .tool-btn.active-off {
+      background: rgba(15, 23, 42, 0.45);
+      border-color: rgba(148, 163, 184, 0.55);
+      color: #cbd5e1;
+    }
+
+    .tool-btn.fs-btn {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #7dd3fc;
+      color: #e0f2fe;
+    }
+
+    .tool-btn.teacher-btn {
+      background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
+      border-color: #ffffff;
+      color: #451a03;
+      box-shadow: 0 2px 0 #b45309;
+    }
+
+    /* Fullscreen Non-Blocking Guidance Toast */
+    .fs-toast {
+      position: fixed;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 75;
+      width: min(92vw, 560px);
+      background: #1e1b4b;
+      color: #fef9c3;
+      border: 2.5px solid var(--gold-400);
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .fs-toast-close {
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-weight: 900;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+     * 3. BUTTONS & CARD SURFACES
+     * ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 14px;
+      font-family: var(--font-main);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(2px);
+    }
+
+    .btn-gold {
+      background: linear-gradient(180deg, #fde047 0%, #f59e0b 100%);
+      color: #451a03;
+      box-shadow: 0 4px 0 #b45309, 0 6px 14px rgba(245, 158, 11, 0.3);
+    }
+    .btn-gold:active:not(:disabled) { box-shadow: 0 1px 0 #b45309; }
+
+    .btn-green {
+      background: linear-gradient(180deg, #34d399 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 0 #065f46, 0 6px 14px rgba(16, 185, 129, 0.3);
+    }
+    .btn-green:active:not(:disabled) { box-shadow: 0 1px 0 #065f46; }
+
+    .btn-blue {
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 0 #075985;
+    }
+    .btn-blue:active:not(:disabled) { box-shadow: 0 1px 0 #075985; }
+
+    .btn-slate {
+      background: linear-gradient(180deg, #f1f5f9 0%, #cbd5e1 100%);
+      color: #1e293b;
+      box-shadow: 0 4px 0 #94a3b8;
+    }
+    .btn-slate:active:not(:disabled) { box-shadow: 0 1px 0 #94a3b8; }
+
+    .btn-amber-soft {
+      background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+      color: #78350f;
+      box-shadow: 0 4px 0 #d97706;
+    }
+    .btn-amber-soft:active:not(:disabled) { box-shadow: 0 1px 0 #d97706; }
+
+    .btn-sky-outline {
+      background: linear-gradient(180deg, #e0f2fe 0%, #bae6fd 100%);
+      color: #0369a1;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 4px 0 #0284c7;
+    }
+    .btn-sky-outline:active:not(:disabled) { box-shadow: 0 1px 0 #0284c7; }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff 0%, #fffdf5 100%);
+      border: 3.5px solid var(--gold-400);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 24px rgba(30, 27, 75, 0.13), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    /* ============================================================
+     * 4. MAIN SINGLE-PAGE CONTAINER (100dvh NO-SCROLL IPAD FIT)
+     * ============================================================ */
+    .main-wrap {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8px max(12px, env(safe-area-inset-right, 12px)) max(8px, env(safe-area-inset-bottom, 8px)) max(12px, env(safe-area-inset-left, 12px));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ---- SCREEN 1: INTRO STORY SCREEN ---- */
+    #screenIntro {
+      width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .intro-card {
+      width: 100%;
+      max-width: 980px;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 0.9fr 1.35fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .intro-art {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .intro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fef3c7;
+      border: 2px solid var(--gold-400);
+      color: #92400e;
+      font-weight: 900;
+      font-size: 0.84rem;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+    }
+
+    .intro-title {
+      font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+      font-weight: 900;
+      color: var(--ink-navy);
+      line-height: 1.2;
+      margin: 8px 0 10px;
+    }
+
+    .intro-desc {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: #334155;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .mission-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .step-box {
+      border-radius: 14px;
+      padding: 10px;
+      border: 2px solid;
+    }
+    .step-box.s1 { background: #f0f9ff; border-color: #7dd3fc; }
+    .step-box.s2 { background: #fffbeb; border-color: #fcd34d; }
+    .step-box.s3 { background: #faf5ff; border-color: #d8b4fe; }
+
+    .step-box-num { font-size: 0.86rem; font-weight: 900; margin-bottom: 2px; }
+    .step-box-title { font-size: 0.88rem; font-weight: 900; color: var(--ink-navy); margin-bottom: 2px; }
+    .step-box-text { font-size: 0.75rem; color: var(--ink-muted); line-height: 1.38; font-weight: 700; }
+
+    .intro-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .start-btn {
+      flex: 1.35;
+      min-width: 210px;
+      min-height: 56px;
+      padding: 12px 22px;
+      font-size: 1.25rem;
+    }
+
+    .intro-fs-btn {
+      flex: 1;
+      min-width: 175px;
+      min-height: 56px;
+      padding: 12px 18px;
+      font-size: 1.08rem;
+    }
+
+    /* ---- SCREEN 2: INTERACTIVE GAMEPLAY (IPAD LANDSCAPE GOLDEN 2-COLUMN) ---- */
+    #screenGame {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stage-banner {
+      flex-shrink: 0;
+      background: linear-gradient(90deg, #312e81 0%, #4f46e5 100%);
+      border: 2.5px solid rgba(255, 255, 255, 0.5);
+      border-radius: 14px;
+      padding: 6px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(49, 46, 129, 0.2);
+    }
+
+    .stage-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .phase-chip {
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .phase-chip.trial { background: var(--gold-300); color: #451a03; }
+    .phase-chip.tower { background: #e9d5ff; color: #4c1d95; }
+
+    .stage-heading {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #fef9c3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .progress-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .p-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #818cf8;
+      background: #3730a3;
+      color: #c7d2fe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-num);
+      font-size: 0.8rem;
+      font-weight: 900;
+    }
+    .p-dot.current {
+      background: var(--gold-400);
+      border-color: #ffffff;
+      color: #451a03;
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+    }
+    .p-dot.done {
+      background: var(--emerald-500);
+      border-color: #a7f3d0;
+      color: #ffffff;
+    }
+
+    /* Golden 2-Column Layout: Left = Question & Tower Progress | Right = Auto-Scaling Clock & Controls */
+    .game-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 0.96fr 1.04fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    /* LEFT COLUMN: QUESTION CARD + TOWER PROGRESS / TIP */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .question-card {
+      flex: 1;
+      min-height: 0;
+      padding: 13px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .q-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .q-art-box {
+      width: 62px;
+      height: 62px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #e0f2fe, #fef9c3);
+      border: 2.5px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 8px rgba(2, 132, 199, 0.16);
+      padding: 4px;
+    }
+
+    .q-tag {
+      display: inline-block;
+      background: #fef3c7;
+      border: 1.5px solid #fbbf24;
+      color: #92400e;
+      font-size: 0.76rem;
+      font-weight: 900;
+      padding: 2px 9px;
+      border-radius: var(--radius-pill);
+      margin-bottom: 3px;
+    }
+
+    .q-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--ink-navy);
+      line-height: 1.2;
+    }
+
+    .q-text-box {
+      background: #ffffff;
+      border: 2.5px solid #fde68a;
+      border-radius: 14px;
+      padding: 11px 14px;
+      box-shadow: inset 0 2px 5px rgba(217, 119, 6, 0.08);
+    }
+
+    .q-text {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.6;
+    }
+
+    .strategy-box {
+      background: linear-gradient(90deg, #ecfeff 0%, #f0fdfa 100%);
+      border: 2px solid #14b8a6;
+      border-radius: 12px;
+      padding: 8px 11px;
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      color: #115e59;
+      font-size: 0.85rem;
+      font-weight: 800;
+      line-height: 1.42;
+    }
+
+    .info-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info-pill {
+      border-radius: 12px;
+      padding: 7px 10px;
+      text-align: center;
+      border: 2px solid;
+    }
+    .info-pill.start { background: #eff6ff; border-color: #60a5fa; }
+    .info-pill.dur { background: #fff1f2; border-color: #fb7185; }
+
+    .info-pill-label { font-size: 0.75rem; font-weight: 900; margin-bottom: 1px; }
+    .info-pill.start .info-pill-label { color: #1d4ed8; }
+    .info-pill.dur .info-pill-label { color: #be123c; }
+
+    .info-pill-val { font-size: 1.12rem; font-weight: 900; }
+    .info-pill.start .info-pill-val { color: #1e3a8a; }
+    .info-pill.dur .info-pill-val { color: #dc2626; }
+
+    .feedback-box {
+      border-radius: 12px;
+      padding: 9px 12px;
+      border: 2px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .feedback-box.ok { background: #ecfdf5; border-color: #10b981; color: #064e3b; }
+    .feedback-box.err { background: #fff1f2; border-color: #fb7185; color: #881337; }
+
+    .feedback-icon { font-size: 1.35rem; line-height: 1; flex-shrink: 0; }
+    .feedback-title { font-size: 0.96rem; font-weight: 900; margin-bottom: 2px; }
+    .feedback-msg { font-size: 0.84rem; font-weight: 700; line-height: 1.42; }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .submit-btn {
+      flex: 1;
+      min-height: 52px;
+      padding: 10px 18px;
+      font-size: 1.22rem;
+    }
+
+    /* Trial Mode Tip Box (Compact bottom of left col) */
+    .tip-panel {
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
+      border: 2.5px solid #818cf8;
+      border-radius: 14px;
+      padding: 9px 12px;
+      color: #e0e7ff;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.8rem;
+      line-height: 1.42;
+      font-weight: 700;
+    }
+    .tip-panel strong { color: #fde047; }
+
+    /* Compact 4-Floor Tower Progress Bar (Bottom of left col in Tower Mode) */
+    .tower-panel {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);
+      border: 3px solid #a78bfa;
+      border-radius: 16px;
+      padding: 9px 12px;
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(30, 27, 75, 0.22);
+    }
+
+    .tower-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+
+    .tower-title {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #fde047;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tower-boss-pill {
+      font-size: 0.72rem;
+      font-weight: 900;
+      background: rgba(225, 29, 72, 0.45);
+      border: 1.5px solid #fb7185;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      color: #ffe4e6;
+    }
+
+    .tower-floors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .tower-floor {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 9px;
+      border-radius: 11px;
+      border: 2px solid;
+      gap: 4px;
+    }
+    .tower-floor.active-floor {
+      background: rgba(245, 158, 11, 0.28);
+      border-color: #fde047;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+    }
+    .tower-floor.rescued-floor {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #34d399;
+    }
+    .tower-floor.locked-floor {
+      background: rgba(49, 46, 129, 0.55);
+      border-color: rgba(129, 140, 248, 0.4);
+      opacity: 0.85;
+    }
+
+    .floor-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .floor-num {
+      padding: 2px 6px;
+      border-radius: 7px;
+      background: #1e1b4b;
+      border: 1.5px solid #818cf8;
+      font-family: var(--font-num);
+      font-weight: 900;
+      font-size: 0.72rem;
+      color: #fde047;
+      flex-shrink: 0;
+    }
+
+    .floor-name {
+      font-weight: 900;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .floor-status {
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .floor-status.done { background: #10b981; color: #ffffff; }
+    .floor-status.cur { background: #38bdf8; color: #082f49; }
+    .floor-status.wait { background: #312e81; color: #a5b4fc; }
+
+    /* RIGHT COLUMN: AUTO-SCALING INTERACTIVE CLOCK & >=52px CONTROLS */
+    .clock-panel {
+      height: 100%;
+      min-height: 0;
+      padding: 10px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clock-top-bar {
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .clock-instruction {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: var(--ink-navy);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .clock-instruction .blue-txt { color: var(--sky-600); }
+
+    .readout-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .digital-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #1e1b4b;
+      color: #fde047;
+      border: 2px solid var(--gold-400);
+      border-radius: var(--radius-pill);
+      padding: 3px 12px;
+      font-size: 0.94rem;
+      font-weight: 900;
+    }
+
+    .cross-hour-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffe4e6;
+      color: #9f1239;
+      border: 2px solid #fb7185;
+      border-radius: var(--radius-pill);
+      padding: 3px 10px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      animation: bounceSoft 1.2s ease-in-out infinite;
+    }
+
+    /* Auto-Scaling SVG Clock Container */
+    .clock-svg-wrap {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #clockSvg {
+      height: 100%;
+      width: auto;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      touch-action: none;
+      cursor: grab;
+      display: block;
+    }
+
+    #clockSvg:active {
+      cursor: grabbing;
+    }
+
+    /* Live Breakdown Formula Strip */
+    .breakdown-bar {
+      width: 100%;
+      flex-shrink: 0;
+      background: #f0fdf4;
+      border: 2px solid #34d399;
+      border-radius: 12px;
+      padding: 7px 10px;
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: #064e3b;
+      line-height: 1.4;
+    }
+
+    .bd-teal {
+      display: inline-block;
+      background: #ccfbf1;
+      color: #0f766e;
+      padding: 1px 6px;
+      border-radius: 7px;
+      border: 1.5px solid #2dd4bf;
+    }
+
+    .bd-gold {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 1px 6px;
+      border-radius: 7px;
+      border: 1.5px solid #fbbf24;
+    }
+
+    .bd-orange {
+      display: inline-block;
+      background: #ffedd5;
+      color: #9a3412;
+      padding: 1px 6px;
+      border-radius: 7px;
+      border: 1.5px solid #fb923c;
+    }
+
+    .bd-total {
+      display: inline-block;
+      background: #059669;
+      color: #ffffff;
+      padding: 1px 8px;
+      border-radius: 7px;
+    }
+
+    /* Touch Adjustment Buttons (>=52px height) */
+    .clock-controls {
+      width: 100%;
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: 1.35fr 1.15fr 0.85fr 0.85fr;
+      gap: 8px;
+    }
+
+    .ctrl-btn {
+      min-height: 54px;
+      padding: 8px 6px;
+      font-size: 0.9rem;
+      border-radius: 13px;
+      white-space: nowrap;
+    }
+
+    /* ---- SCREEN 3: PASSWORD GATE (1130) ---- */
+    #screenGate {
+      width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gate-outer {
+      max-width: 540px;
+      width: 100%;
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 4px solid var(--gold-400);
+      box-shadow: 0 16px 36px rgba(30, 27, 75, 0.25);
+    }
+
+    .gate-doors-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .gate-door {
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(180deg, #fbbf24 0%, #d97706 60%, #92400e 100%);
+      display: flex;
+      align-items: center;
+      transition: transform 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .gate-door.left { justify-content: flex-end; padding-right: 18px; border-right: 4px solid #78350f; }
+    .gate-door.right { justify-content: flex-start; padding-left: 18px; border-left: 4px solid #78350f; }
+
+    .gate-knob {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #fef08a;
+      border: 4px solid #78350f;
+    }
+
+    .gate-doors-overlay.opening { opacity: 1; }
+    .gate-doors-overlay.opened .gate-door.left { transform: translateX(-105%); }
+    .gate-doors-overlay.opened .gate-door.right { transform: translateX(105%); }
+
+    .gate-card {
+      padding: 20px 22px;
+      text-align: center;
+      border: none;
+      border-radius: 0;
+    }
+
+    .passcode-boxes {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 0 8px;
+    }
+
+    .digit-box {
+      width: 60px;
+      height: 68px;
+      border-radius: 16px;
+      background: #1e1b4b;
+      border: 3.5px solid var(--gold-400);
+      color: #fde047;
+      font-family: var(--font-num);
+      font-size: 2rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.35);
+      transition: transform 0.12s ease, border-color 0.15s ease;
+    }
+    .digit-box.filled {
+      border-color: #34d399;
+      transform: scale(1.05);
+    }
+
+    .passcode-msg {
+      min-height: 24px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .keypad {
+      max-width: 310px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .key-btn {
+      min-height: 54px;
+      padding: 10px 8px;
+      border-radius: 14px;
+      border: 2px solid #fcd34d;
+      border-bottom: 4px solid #d97706;
+      background: #ffffff;
+      color: var(--ink-navy);
+      font-family: var(--font-num);
+      font-size: 1.45rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .key-btn:active { transform: translateY(2px); }
+
+    .key-btn.clear-key {
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      background: #ffe4e6;
+      border-color: #fda4af;
+      border-bottom-color: #e11d48;
+      color: #9f1239;
+    }
+
+    .key-btn.ok-key {
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      background: linear-gradient(180deg, #34d399, #059669);
+      border-color: #6ee7b7;
+      border-bottom-color: #065f46;
+      color: #ffffff;
+    }
+
+    /* ---- SCREEN 4: BOSS FINALE & VICTORY SETTLEMENT ---- */
+    #screenBoss {
+      width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .boss-card {
+      max-width: 860px;
+      width: 100%;
+      max-height: 100%;
+      overflow-y: auto;
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      background: linear-gradient(180deg, #3b0764 0%, #1e1b4b 55%, #0f172a 100%);
+      border: 4px solid #fb7185;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.55);
+      color: #ffffff;
+      text-align: center;
+      position: relative;
+    }
+
+    .warning-tape {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(90deg, #e11d48, #be123c);
+      border: 2px solid #fda4af;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 0 18px rgba(244, 63, 94, 0.7);
+      margin-bottom: 8px;
+      animation: pulseWarn 0.9s ease-in-out infinite;
+    }
+
+    .boss-headline {
+      font-size: clamp(1.5rem, 3.2vw, 2.15rem);
+      font-weight: 900;
+      color: #fde047;
+      text-shadow: 0 3px 14px rgba(244, 63, 94, 0.7);
+      margin: 4px 0 8px;
+    }
+
+    .boss-dialogue {
+      max-width: 680px;
+      margin: 0 auto 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 2px solid #f43f5e;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: #ffe4e6;
+      font-weight: 700;
+    }
+
+    .summary-panel {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(49, 46, 129, 0.88);
+      border: 3px solid var(--gold-400);
+      border-radius: 18px;
+      padding: 14px 16px;
+      animation: popIn 0.45s ease forwards;
+    }
+
+    .summary-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #fde047;
+      margin-bottom: 8px;
+    }
+
+    .rescued-badges-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .rescued-building-badge {
+      background: rgba(15, 23, 42, 0.72);
+      border: 2px solid #34d399;
+      border-radius: 12px;
+      padding: 7px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: #a7f3d0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      padding: 8px 6px;
+    }
+
+    .stat-label { font-size: 0.76rem; color: #c7d2fe; font-weight: 700; }
+    .stat-val { font-family: var(--font-num); font-size: 1.25rem; font-weight: 900; color: #6ee7b7; }
+
+    /* ---- TEACHER MODAL (1999 LOCK WITH * MASKING) ---- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(15, 23, 42, 0.74);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 540px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      padding: 20px;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--ink-navy);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #e2e8f0;
+      color: #334155;
+      font-size: 1.15rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .jump-group-title {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: #4338ca;
+      margin: 10px 0 5px;
+    }
+
+    .jump-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .jump-btn {
+      width: 100%;
+      min-height: 44px;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 11px;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--ink-navy);
+      font-family: var(--font-main);
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .jump-btn:hover { background: #fef9c3; border-color: #f59e0b; }
+    .jump-btn.full { grid-column: span 2; }
+
+    /* ============================================================
+     * 5. ANIMATIONS & DRAMATIC OVERLAYS
+     * ============================================================ */
+    #flashOverlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(244, 63, 94, 0.85), rgba(136, 19, 55, 0.92));
+      pointer-events: none;
+      opacity: 0;
+      z-index: 80;
+    }
+
+    @keyframes redFlash {
+      0%, 100% { opacity: 0; }
+      20% { opacity: 0.65; }
+      45% { opacity: 0.15; }
+      70% { opacity: 0.72; }
+    }
+    .do-flash { animation: redFlash 1.2s ease-in-out; }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .float-slow { animation: floatSlow 3s ease-in-out infinite; }
+
+    @keyframes bounceSoft {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    @keyframes pulseWarn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-7px); }
+      80% { transform: translateX(7px); }
+    }
+    .shake { animation: shakeX 0.42s ease-in-out; }
+
+    @keyframes bossShake {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-11px, -6px) rotate(-1.4deg); }
+      30% { transform: translate(11px, 6px) rotate(1.4deg); }
+      45% { transform: translate(-12px, 5px) rotate(-1deg); }
+      60% { transform: translate(12px, -5px) rotate(1deg); }
+      75% { transform: translate(-7px, 6px) rotate(-0.6deg); }
+    }
+    .do-boss-shake { animation: bossShake 0.55s ease-in-out 3; }
+
+    @keyframes popIn {
+      0% { transform: scale(0.88); opacity: 0; }
+      75% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop-in { animation: popIn 0.3s ease forwards; }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-vortex {
+      transform-origin: center;
+      animation: spinSlow 7s linear infinite reverse;
+    }
+
+    @keyframes guidePulse {
+      0%, 100% { opacity: 0.95; stroke-width: 4; }
+      50% { opacity: 0.45; stroke-width: 7; }
+    }
+    .guide-ring-pulse { animation: guidePulse 1.3s ease-in-out infinite; }
+
+    @keyframes confettiDrop {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(680deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      top: 0;
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      pointer-events: none;
+      z-index: 90;
+      animation: confettiDrop 2.2s linear forwards;
+    }
+
+    /* ============================================================
+     * 6. IPAD PORTRAIT & SMALL SCREEN ADAPTATION
+     * ============================================================ */
+    @media (orientation: portrait) and (max-width: 920px) {
+      .intro-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 18px;
+        gap: 14px;
+      }
+      .intro-art svg {
+        width: 180px !important;
+        height: 180px !important;
+      }
+      .game-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 10px;
+      }
+      .left-col {
+        height: auto;
+      }
+      .question-card {
+        padding: 12px 14px;
+        gap: 7px;
+      }
+      .tower-floors-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .tower-floor {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 7px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      html, body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+      }
+      .main-wrap {
+        overflow: visible;
+      }
+      .topbar-inner {
+        flex-wrap: wrap;
+      }
+      .mission-steps {
+        grid-template-columns: 1fr;
+        text-align: left;
+      }
+      .clock-controls {
+        grid-template-columns: 1fr 1fr;
+      }
+      .rescued-badges-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .jump-grid {
+        grid-template-columns: 1fr;
+      }
+      .jump-btn.full {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dramatic Red Flash Overlay for Boss Counterattack -->
+  <div id="flashOverlay"></div>
+
+  <!-- Non-Blocking Fullscreen Guidance Toast (for restricted Safari/iFrame environments) -->
+  <div id="fsToast" class="fs-toast hidden" role="status">
+    <span>📱 提示：如瀏覽器限制自動全屏，請按 Safari 底部「分享 ⬆️」→「加入主畫面」即可全螢幕暢玩！</span>
+    <button class="fs-toast-close" onclick="hideFsToast()" aria-label="關閉提示">✕</button>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- TOP NAVIGATION & TEACHER TOOLBAR                          -->
+  <!-- ========================================================= -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="24" height="24">
+            <circle cx="18" cy="19" r="12" fill="#fffbeb" stroke="#78350f" stroke-width="2.5"/>
+            <rect x="15" y="3" width="6" height="4" rx="1.5" fill="#f59e0b" stroke="#78350f" stroke-width="1.5"/>
+            <line x1="18" y1="19" x2="18" y2="12" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round"/>
+            <line x1="18" y1="19" x2="24" y2="19" stroke="#0284c7" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="18" cy="19" r="2.2" fill="#78350f"/>
+          </svg>
+        </div>
+        <div style="min-width:0;">
+          <div class="brand-title">時光守護者 <span>｜拯救時光村大冒險</span></div>
+          <div id="headerStageLabel" class="brand-sub">保良局田家炳小學｜時間間隔：找結束時間</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="gem-pill" title="已獲得的時光寶石">
+          <span>💎</span>
+          <span id="gemCount" class="gem-num">0</span>
+        </div>
+
+        <button id="btnToggleHops" class="tool-btn active-on" onclick="toggleHops()">
+          <span>🔢</span><span>跳格提示：開</span>
+        </button>
+
+        <button id="btnToggleDigital" class="tool-btn active-on" onclick="toggleDigital()">
+          <span>🕒</span><span>電子鐘：開</span>
+        </button>
+
+        <button id="btnToggleSound" class="tool-btn active-on" onclick="toggleSound()">
+          <span id="soundIcon">🔊</span><span>音效</span>
+        </button>
+
+        <button id="btnTopFullscreen" class="tool-btn fs-btn" onclick="toggleFullscreen()">
+          <span>⛶</span><span id="topFsText">全屏</span>
+        </button>
+
+        <button class="tool-btn teacher-btn" onclick="openTeacherModal()">
+          <span>👩‍🏫</span><span>老師跳關</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- MAIN CONTENT                                              -->
+  <!-- ========================================================= -->
+  <main class="main-wrap">
+
+    <!-- ======================================================= -->
+    <!-- SCREEN 1: INTRO STORY SCREEN                            -->
+    <!-- ======================================================= -->
+    <section id="screenIntro" class="pop-in">
+      <div class="card intro-card">
+        <!-- Cute SVG Illustration -->
+        <div class="intro-art">
+          <div class="float-slow">
+            <svg viewBox="0 0 260 250" width="230" height="220">
+              <defs>
+                <radialGradient id="auraGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#fef08a" stop-opacity="0.95"/>
+                  <stop offset="65%" stop-color="#bae6fd" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#bae6fd" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="130" cy="126" r="106" fill="url(#auraGrad)"/>
+              <!-- Time Tower -->
+              <rect x="96" y="44" width="68" height="145" rx="9" fill="#6366f1" stroke="#312e81" stroke-width="3.5"/>
+              <polygon points="88,48 130,10 172,48" fill="#f59e0b" stroke="#78350f" stroke-width="3.5"/>
+              <circle cx="130" cy="82" r="21" fill="#fffbeb" stroke="#78350f" stroke-width="3"/>
+              <line x1="130" y1="82" x2="130" y2="69" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+              <line x1="130" y1="82" x2="141" y2="82" stroke="#0284c7" stroke-width="3" stroke-linecap="round"/>
+              <rect x="117" y="132" width="26" height="34" rx="13" fill="#fde047" stroke="#78350f" stroke-width="2.5"/>
+
+              <!-- Cute Time Guardian (Left) -->
+              <g transform="translate(18, 114)">
+                <path d="M24,45 Q6,85 16,105 L74,105 Q84,85 66,45 Z" fill="#0284c7" stroke="#0c4a6e" stroke-width="3"/>
+                <rect x="28" y="48" width="34" height="45" rx="12" fill="#38bdf8" stroke="#0c4a6e" stroke-width="3"/>
+                <circle cx="45" cy="30" r="23" fill="#fed7aa" stroke="#7c2d12" stroke-width="3"/>
+                <path d="M22,24 Q45,0 68,24 Z" fill="#f59e0b" stroke="#78350f" stroke-width="3"/>
+                <circle cx="37" cy="22" r="5.5" fill="#e0f2fe" stroke="#0369a1" stroke-width="2.5"/>
+                <circle cx="53" cy="22" r="5.5" fill="#e0f2fe" stroke="#0369a1" stroke-width="2.5"/>
+                <circle cx="37" cy="34" r="2.7" fill="#1e293b"/>
+                <circle cx="53" cy="34" r="2.7" fill="#1e293b"/>
+                <path d="M39,41 Q45,47 51,41" fill="none" stroke="#9a3412" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Clock Shield -->
+                <circle cx="72" cy="74" r="17" fill="#fde047" stroke="#92400e" stroke-width="3"/>
+                <circle cx="72" cy="74" r="11" fill="#fffbeb" stroke="#b45309" stroke-width="1.5"/>
+                <line x1="72" y1="74" x2="72" y2="66" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="72" y1="74" x2="78" y2="74" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+
+              <!-- Time-Devouring Demon King (Right) -->
+              <g transform="translate(162, 108)">
+                <path d="M18,45 Q2,85 10,108 L72,108 Q82,82 62,45 Z" fill="#581c87" stroke="#1e1b4b" stroke-width="3"/>
+                <path d="M24,18 L12,0 L32,12 Z" fill="#e11d48" stroke="#4c0519" stroke-width="2.5"/>
+                <path d="M56,18 L68,0 L48,12 Z" fill="#e11d48" stroke="#4c0519" stroke-width="2.5"/>
+                <circle cx="40" cy="30" r="21" fill="#312e81" stroke="#1e1b4b" stroke-width="3"/>
+                <polygon points="27,26 37,30 28,33" fill="#fde047"/>
+                <polygon points="53,26 43,30 52,33" fill="#fde047"/>
+                <path d="M30,40 Q40,46 50,40" fill="none" stroke="#fda4af" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="13" cy="68" r="13" fill="#f43f5e" stroke="#ffffff" stroke-width="2"/>
+                <text x="13" y="74" text-anchor="middle" fill="#ffffff" font-weight="900" font-size="16">?</text>
+              </g>
+            </svg>
+          </div>
+          <span class="intro-badge">🏫 保良局田家炳小學</span>
+        </div>
+
+        <!-- Story Text & CTA -->
+        <div>
+          <span class="intro-badge">🛡️ 時間間隔：找結束時間・緊急任務通知！</span>
+          <h1 class="intro-title">拯救時光村大冒險！</h1>
+          <p class="intro-desc">
+            各位同學，你們是勇敢的<span class="start-blue">時光守護者</span>！
+            邪惡的<span class="duration-red">吞時魔王</span>入侵了和平的時光村，偷走了村民所有活動的「結束時間」！
+            守護者要先通過 4 題試煉，再輸入密碼解鎖時光塔，逐層攻塔拯救村民！
+          </p>
+
+          <div class="mission-steps">
+            <div class="step-box s1">
+              <div class="step-box-num">⏰ 第一步</div>
+              <div class="step-box-title">4 題守護者試煉</div>
+              <div class="step-box-text">手動撥動分針，學會先數小格再 5 個一數</div>
+            </div>
+            <div class="step-box s2">
+              <div class="step-box-num">🔐 第二步</div>
+              <div class="step-box-title">解鎖時光塔金門</div>
+              <div class="step-box-text">輸入四位數字密碼，開啟拯救行動</div>
+            </div>
+            <div class="step-box s3">
+              <div class="step-box-num">🏰 第三步</div>
+              <div class="step-box-title">攻上塔頂救村民</div>
+              <div class="step-box-text">逐層拯救 4 層建築，迎戰吞時魔王</div>
+            </div>
+          </div>
+
+          <div class="intro-cta-row">
+            <button class="btn btn-gold start-btn" onclick="startTrials()">
+              <span>🚀</span><span>開始守護試煉</span>
+            </button>
+            <button id="btnIntroFullscreen" class="btn btn-sky-outline intro-fs-btn" onclick="toggleFullscreen()">
+              <span>🖥️</span><span id="introFsText">全螢幕顯示</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN 2: INTERACTIVE GAMEPLAY (TRIALS & TOWER RESCUE)  -->
+    <!-- ======================================================= -->
+    <section id="screenGame" class="hidden">
+      <!-- Top Progress Banner -->
+      <div class="stage-banner">
+        <div class="stage-banner-left">
+          <span id="phaseChip" class="phase-chip trial">🛡️ 守護者試煉</span>
+          <span id="stageHeading" class="stage-heading">試煉題 1 / 4</span>
+        </div>
+        <div id="progressDots" class="progress-dots"></div>
+      </div>
+
+      <!-- Golden 2-Column Workspace: Left = Question & Tower Progress | Right = Clock & Controls -->
+      <div class="game-grid">
+
+        <!-- LEFT COLUMN: QUESTION CARD + STRATEGY + FEEDBACK + TOWER PROGRESS -->
+        <div class="left-col">
+          <div id="questionCard" class="card question-card">
+            <div class="q-header">
+              <div id="qArtBox" class="q-art-box"></div>
+              <div style="min-width:0;">
+                <div id="qTag" class="q-tag">守護者試煉・第 1 題</div>
+                <h2 id="qTitle" class="q-title">班主任課的結束時間</h2>
+              </div>
+            </div>
+
+            <div class="q-text-box">
+              <p id="qText" class="q-text"></p>
+            </div>
+
+            <!-- Special Strategy Hint Box -->
+            <div id="strategyBox" class="strategy-box hidden">
+              <span style="font-size:1.15rem;line-height:1;">🌟</span>
+              <div id="strategyText"></div>
+            </div>
+
+            <div class="info-pills">
+              <div class="info-pill start">
+                <div class="info-pill-label">📍 開始時間</div>
+                <div id="qStartVal" class="info-pill-val">8 時正</div>
+              </div>
+              <div class="info-pill dur">
+                <div class="info-pill-label">⏳ 活動時間（時距）</div>
+                <div id="qDurVal" class="info-pill-val">20 分鐘</div>
+              </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedbackBox" class="feedback-box hidden">
+              <span id="feedbackIcon" class="feedback-icon">🎉</span>
+              <div>
+                <div id="feedbackTitle" class="feedback-title"></div>
+                <div id="feedbackMsg" class="feedback-msg"></div>
+              </div>
+            </div>
+
+            <!-- Submit / Next Action Buttons -->
+            <div class="action-row">
+              <button id="btnSubmitAnswer" class="btn btn-gold submit-btn" onclick="checkAnswer()">
+                <span>✅</span><span>確定回答</span>
+              </button>
+              <button id="btnNextStage" class="btn btn-green submit-btn hidden" onclick="goNextStage()">
+                <span id="btnNextText">下一關</span><span>➡️</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Trial Mode Tip Box -->
+          <div id="trialTipBox" class="tip-panel">
+            <span style="font-size:1.45rem;line-height:1;">🦉</span>
+            <div>
+              <strong>時光守護秘訣：</strong>
+              鐘面上每兩個數字之間（一大格）代表 <strong>5 分鐘</strong>，每一小格代表 <strong>1 分鐘</strong>。
+              如開始時間不在數字上，記得<strong>先數小格到最近的數字，再 5 個一數數大格</strong>，最後數餘下小格！
+            </div>
+          </div>
+
+          <!-- Tower Mode 4-Floor Climbing Progress Visual -->
+          <div id="towerMapPanel" class="tower-panel hidden">
+            <div class="tower-header">
+              <div class="tower-title"><span>🏰</span><span>時光塔 4 層攻塔進度</span></div>
+              <span class="tower-boss-pill">😈 塔頂：吞時魔王</span>
+            </div>
+            <div id="towerFloorsGrid" class="tower-floors-grid"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: AUTO-SCALING INTERACTIVE CLOCK + BREAKDOWN + >=52px CONTROLS -->
+        <div class="card clock-panel">
+          <div class="clock-top-bar">
+            <div class="clock-instruction">
+              <span>👆</span>
+              <span>拖動<span class="blue-txt">藍色分針</span>找結束時間</span>
+            </div>
+            <div class="readout-row">
+              <div id="digitalBadge" class="digital-badge">
+                <span>🕒</span>
+                <span id="digitalTimeText">8 時正</span>
+              </div>
+              <div id="crossHourBadge" class="cross-hour-badge hidden">
+                <span>✨ 分針過了 12，時針進 1 小時！</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INTERACTIVE SVG CLOCK (viewBox 460x460, auto-scales to container) -->
+          <div class="clock-svg-wrap">
+            <svg id="clockSvg" viewBox="0 0 460 460" aria-label="互動時鐘">
+              <defs>
+                <radialGradient id="clockFaceGrad" cx="50%" cy="45%" r="55%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="85%" stop-color="#fefce8"/>
+                  <stop offset="100%" stop-color="#fef3c7"/>
+                </radialGradient>
+                <linearGradient id="bezelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fde047"/>
+                  <stop offset="50%" stop-color="#f59e0b"/>
+                  <stop offset="100%" stop-color="#d97706"/>
+                </linearGradient>
+                <filter id="clockShadow" x="-15%" y="-15%" width="130%" height="130%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#1e1b4b" flood-opacity="0.18"/>
+                </filter>
+              </defs>
+
+              <!-- Outer Hopping Arcs & Small-Tick Badges Layer -->
+              <g id="hopArcsLayer"></g>
+
+              <!-- Clock Outer Bezel & Inner Face -->
+              <circle cx="230" cy="230" r="158" fill="url(#bezelGrad)" stroke="#92400e" stroke-width="4" filter="url(#clockShadow)"/>
+              <circle cx="230" cy="230" r="146" fill="url(#clockFaceGrad)" stroke="#d97706" stroke-width="2.5"/>
+
+              <!-- Elapsed Pie Sector Wedge Layer -->
+              <g id="elapsedSectorLayer"></g>
+
+              <!-- Static Ticks & Hour Numbers Layer -->
+              <g id="clockTicksLayer"></g>
+
+              <!-- Guide Highlight Ring for Nearest Next Clock Number -->
+              <g id="guideNumberLayer"></g>
+
+              <!-- Start Time Dark-Blue Dashed Minute Hand -->
+              <g id="startGhostLayer"></g>
+
+              <!-- Red Short Hour Hand -->
+              <g id="hourHandGroup" transform="rotate(0 230 230)">
+                <line x1="230" y1="244" x2="230" y2="146" stroke="#dc2626" stroke-width="11" stroke-linecap="round"/>
+                <polygon points="230,132 221,152 239,152" fill="#dc2626"/>
+                <line x1="230" y1="238" x2="230" y2="152" stroke="#fca5a5" stroke-width="3" stroke-linecap="round"/>
+              </g>
+
+              <!-- Blue Draggable Long Minute Hand -->
+              <g id="minuteHandGroup" transform="rotate(0 230 230)">
+                <!-- Wide invisible hit target for effortless finger / Apple Pencil dragging -->
+                <line x1="230" y1="230" x2="230" y2="64" stroke="transparent" stroke-width="52" stroke-linecap="round"/>
+                <line x1="230" y1="248" x2="230" y2="96" stroke="#0284c7" stroke-width="8.5" stroke-linecap="round"/>
+                <polygon points="230,84 222,104 238,104" fill="#0284c7"/>
+                <line x1="230" y1="242" x2="230" y2="104" stroke="#7dd3fc" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Clear Circular Drag Handle at Tip -->
+                <circle cx="230" cy="78" r="18" fill="#38bdf8" stroke="#ffffff" stroke-width="3.5"/>
+                <circle cx="230" cy="78" r="7.5" fill="#fde047"/>
+              </g>
+
+              <!-- Center Pin -->
+              <circle cx="230" cy="230" r="10.5" fill="#1e1b4b" stroke="#fbbf24" stroke-width="3"/>
+              <circle cx="230" cy="230" r="4" fill="#fef08a"/>
+            </svg>
+          </div>
+
+          <!-- Live Breakdown Formula Strip -->
+          <div id="breakdownBar" class="breakdown-bar">
+            🐾 尚未移動分針（已移動 0 分鐘）
+          </div>
+
+          <!-- Touch Adjustment Buttons (>=52px height) -->
+          <div class="clock-controls">
+            <button class="btn btn-green ctrl-btn" onclick="stepMinutes(5)">+5分 (大格)</button>
+            <button class="btn btn-blue ctrl-btn" onclick="stepMinutes(1)">+1分 (小格)</button>
+            <button class="btn btn-slate ctrl-btn" onclick="stepMinutes(-1)">-1分</button>
+            <button class="btn btn-amber-soft ctrl-btn" onclick="resetClockToStart()">重設</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN 3: PASSWORD GATE SCREEN (1130)                   -->
+    <!-- ======================================================= -->
+    <section id="screenGate" class="hidden pop-in">
+      <div class="gate-outer">
+        <!-- Animated Golden Doors Overlay -->
+        <div id="gateDoorsOverlay" class="gate-doors-overlay">
+          <div class="gate-door left"><div class="gate-knob"></div></div>
+          <div class="gate-door right"><div class="gate-knob"></div></div>
+        </div>
+
+        <div class="card gate-card">
+          <span class="intro-badge" style="background:#d1fae5;border-color:#34d399;color:#065f46;margin-bottom:6px;">
+            🎉 恭喜完成全部 4 題守護者試煉！
+          </span>
+          <div class="float-slow" style="font-size:2.8rem;margin:2px 0;">🔐</div>
+          <h2 style="font-size:1.65rem;font-weight:900;color:var(--ink-navy);margin-bottom:6px;">
+            時光塔神秘金門
+          </h2>
+          <p style="font-size:0.96rem;font-weight:700;color:#475569;line-height:1.5;">
+            請輸入<strong style="color:#b45309;">四位數字通關密碼</strong>，解鎖時光塔大門，出發攻塔拯救時光村居民！
+          </p>
+
+          <div id="gateDigitBoxes" class="passcode-boxes">
+            <div class="digit-box"></div>
+            <div class="digit-box"></div>
+            <div class="digit-box"></div>
+            <div class="digit-box"></div>
+          </div>
+
+          <div id="gateFeedback" class="passcode-msg" style="color:#e11d48;"></div>
+
+          <div class="keypad">
+            <button class="key-btn" onclick="pressGateDigit('1')">1</button>
+            <button class="key-btn" onclick="pressGateDigit('2')">2</button>
+            <button class="key-btn" onclick="pressGateDigit('3')">3</button>
+            <button class="key-btn" onclick="pressGateDigit('4')">4</button>
+            <button class="key-btn" onclick="pressGateDigit('5')">5</button>
+            <button class="key-btn" onclick="pressGateDigit('6')">6</button>
+            <button class="key-btn" onclick="pressGateDigit('7')">7</button>
+            <button class="key-btn" onclick="pressGateDigit('8')">8</button>
+            <button class="key-btn" onclick="pressGateDigit('9')">9</button>
+            <button class="key-btn clear-key" onclick="clearGateDigits()">清除</button>
+            <button class="key-btn" onclick="pressGateDigit('0')">0</button>
+            <button class="key-btn ok-key" onclick="submitGatePasscode()">確認 🔓</button>
+          </div>
+          <p style="font-size:0.78rem;color:#64748b;font-weight:700;margin-top:10px;">
+            💡 提示：可直接點擊數字鍵或使用鍵盤輸入四位密碼
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= -->
+    <!-- SCREEN 4: TOWER TOP BOSS COUNTERATTACK & GAME END       -->
+    <!-- ======================================================= -->
+    <section id="screenBoss" class="hidden pop-in">
+      <div id="bossCard" class="boss-card">
+        <!-- Swirling Vortex SVG Backdrop -->
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.2;pointer-events:none;">
+          <svg viewBox="0 0 400 400" width="420" height="420" class="spin-vortex">
+            <circle cx="200" cy="200" r="175" fill="none" stroke="#c084fc" stroke-width="6" stroke-dasharray="22 14"/>
+            <circle cx="200" cy="200" r="132" fill="none" stroke="#fb7185" stroke-width="5" stroke-dasharray="16 12"/>
+            <circle cx="200" cy="200" r="88" fill="none" stroke="#fde047" stroke-width="4" stroke-dasharray="12 10"/>
+          </svg>
+        </div>
+
+        <div style="position:relative;z-index:2;">
+          <div class="warning-tape">
+            <span>⚠️</span>
+            <span>緊急警報！抵達時光塔塔頂，吞時魔王使出最後反撲！</span>
+          </div>
+
+          <!-- Animated SVG Demon King -->
+          <div class="float-slow" style="width:155px;height:155px;margin:2px auto;">
+            <svg viewBox="0 0 260 260" width="100%" height="100%">
+              <defs>
+                <radialGradient id="bossGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.75"/>
+                  <stop offset="65%" stop-color="#7e22ce" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="130" cy="130" r="108" fill="url(#bossGlow)"/>
+              <polygon points="34,46 54,82 40,84 60,122 28,88 42,86" fill="#fde047"/>
+              <polygon points="226,46 206,82 220,84 200,122 232,88 218,86" fill="#fde047"/>
+              <path d="M50,125 Q26,195 45,238 L215,238 Q234,195 210,125 Q180,104 130,108 Q80,104 50,125 Z" fill="#3b0764" stroke="#fb7185" stroke-width="4"/>
+              <polygon points="48,128 24,102 74,116" fill="#be123c" stroke="#fda4af" stroke-width="2.5"/>
+              <polygon points="212,128 236,102 186,116" fill="#be123c" stroke="#fda4af" stroke-width="2.5"/>
+              <circle cx="130" cy="175" r="28" fill="#1e1b4b" stroke="#fbbf24" stroke-width="3.5"/>
+              <line x1="130" y1="175" x2="115" y2="158" stroke="#fb7185" stroke-width="4" stroke-linecap="round"/>
+              <line x1="130" y1="175" x2="148" y2="184" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+              <path d="M113,156 L126,170 L118,182 L137,197" fill="none" stroke="#fde047" stroke-width="2"/>
+              <path d="M90,72 Q52,32 68,14 Q96,30 108,58 Z" fill="#e11d48" stroke="#fda4af" stroke-width="3"/>
+              <path d="M170,72 Q208,32 192,14 Q164,30 152,58 Z" fill="#e11d48" stroke="#fda4af" stroke-width="3"/>
+              <circle cx="130" cy="86" r="42" fill="#1e1b4b" stroke="#c084fc" stroke-width="4"/>
+              <polygon points="100,76 122,86 104,92" fill="#fde047"/>
+              <polygon points="160,76 138,86 156,92" fill="#fde047"/>
+              <path d="M105,104 Q130,122 155,104" fill="#4c0519" stroke="#fda4af" stroke-width="3"/>
+              <polygon points="114,107 119,115 124,108" fill="#ffffff"/>
+              <polygon points="136,108 141,115 146,107" fill="#ffffff"/>
+            </svg>
+          </div>
+
+          <h2 class="boss-headline">💥 吞時魔王使出最後反撲！</h2>
+
+          <div class="boss-dialogue">
+            「可惡的時光守護者！你們竟然把麵包店、電影院、巴士站和數學課室的結束時間都找回來了……看我的暗黑時光漩渦——最後反撲！」
+            <br/><span style="color:#fde047;display:inline-block;margin-top:4px;">時光塔劇烈搖晃！幸好守護者們早已掌握「找結束時間」的力量，成功擊退吞時魔王，守護了全村居民！</span>
+          </div>
+
+          <!-- Game Over / Victory Settlement Card -->
+          <div id="gameEndSummary" class="summary-panel hidden">
+            <div class="summary-title">🏆 遊戲結束・時光守護者勝利結算</div>
+            <div id="guardianHonorBadge" style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#fde047,#f59e0b);color:#451a03;font-weight:900;font-size:0.94rem;padding:5px 16px;border-radius:999px;margin-bottom:8px;box-shadow:0 4px 12px rgba(245,158,11,0.4);">
+              🏅 守護者榮譽稱號：傳奇時光大守護者
+            </div>
+
+            <!-- 4 Rescued Building Badges -->
+            <div id="rescuedBadgesRow" class="rescued-badges-row"></div>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">📝 守護者試煉</div>
+                <div id="statTrials" class="stat-val">4 / 4</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">🏰 拯救建築</div>
+                <div id="statTower" class="stat-val" style="color:#7dd3fc;">4 / 4</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">💎 時光寶石</div>
+                <div id="statGems" class="stat-val" style="color:#fde047;">8</div>
+              </div>
+            </div>
+
+            <button class="btn btn-gold" style="min-height:52px;padding:12px 28px;font-size:1.12rem;" onclick="restartGame()">
+              <span>🔄</span><span>重新挑戰</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- TEACHER QUICK-JUMP MODAL WITH 1999 PASSCODE LOCK          -->
+  <!-- ========================================================= -->
+  <div id="teacherModal" class="modal-backdrop hidden" onclick="onModalBackdropClick(event)">
+    <div class="card modal-box pop-in">
+      <div class="modal-header">
+        <div class="modal-title"><span>👩‍🏫</span><span id="teacherModalTitle">老師跳關驗證</span></div>
+        <button class="modal-close" onclick="closeTeacherModal()" aria-label="關閉">✕</button>
+      </div>
+
+      <!-- VIEW A: LOCKED STATE (REQUIRES 1999, MASKED WITH *) -->
+      <div id="teacherLockView" style="text-align:center;">
+        <div style="font-size:2.4rem;margin-bottom:4px;">🔒</div>
+        <p style="font-size:0.92rem;font-weight:800;color:#475569;margin-bottom:6px;">
+          為免同學私自跳關，請輸入<strong style="color:#b45309;">四位老師密碼</strong>解鎖（輸入將以 <strong style="color:#b45309;">*</strong> 隱藏）：
+        </p>
+
+        <div id="teacherDigitBoxes" class="passcode-boxes" style="margin:10px 0 6px;">
+          <div class="digit-box" style="width:54px;height:62px;font-size:1.85rem;"></div>
+          <div class="digit-box" style="width:54px;height:62px;font-size:1.85rem;"></div>
+          <div class="digit-box" style="width:54px;height:62px;font-size:1.85rem;"></div>
+          <div class="digit-box" style="width:54px;height:62px;font-size:1.85rem;"></div>
+        </div>
+
+        <div id="teacherLockMsg" class="passcode-msg" style="color:#e11d48;margin-bottom:8px;"></div>
+
+        <div class="keypad" style="max-width:280px;gap:8px;">
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('1')">1</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('2')">2</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('3')">3</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('4')">4</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('5')">5</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('6')">6</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('7')">7</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('8')">8</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('9')">9</button>
+          <button class="key-btn clear-key" style="min-height:52px;font-size:0.9rem;" onclick="clearTeacherDigits()">清除</button>
+          <button class="key-btn" style="min-height:52px;font-size:1.35rem;" onclick="pressTeacherDigit('0')">0</button>
+          <button class="key-btn ok-key" style="min-height:52px;font-size:0.9rem;" onclick="submitTeacherPasscode()">解鎖</button>
+        </div>
+      </div>
+
+      <!-- VIEW B: UNLOCKED JUMP MENU (AUTO-RELOCKS ON CLOSE) -->
+      <div id="teacherMenuView" class="hidden">
+        <p style="font-size:0.82rem;font-weight:700;color:#047857;background:#ecfdf5;border:1.5px solid #34d399;border-radius:10px;padding:7px 10px;margin-bottom:6px;">
+          🔓 已解鎖老師跳關選單（關閉本視窗或跳轉後會自動重新上鎖）。
+        </p>
+
+        <div class="jump-grid">
+          <button class="jump-btn full" onclick="jumpTo('intro')">📖 開場故事頁</button>
+        </div>
+
+        <div class="jump-group-title">⏰ 第一階段：守護者試煉（4 題）</div>
+        <div class="jump-grid">
+          <button class="jump-btn" onclick="jumpTo('trial', 0)">試煉 1：班主任課 (8:00 + 20分)</button>
+          <button class="jump-btn" onclick="jumpTo('trial', 1)">試煉 2：吃午飯 (1:05 + 22分)</button>
+          <button class="jump-btn" onclick="jumpTo('trial', 2)">試煉 3：公園玩耍 (4:12 + 25分)</button>
+          <button class="jump-btn" onclick="jumpTo('trial', 3)">試煉 4：煙花表演 (10:55 + 15分)</button>
+        </div>
+
+        <div class="jump-group-title">🔐 第二階段：時光塔金門</div>
+        <div class="jump-grid">
+          <button class="jump-btn full" onclick="jumpTo('gate')">🔐 時光塔密碼門（通關密碼：1130）</button>
+        </div>
+
+        <div class="jump-group-title">🏰 第三階段：攻塔拯救時光村（4 關）</div>
+        <div class="jump-grid">
+          <button class="jump-btn" onclick="jumpTo('tower', 0)">1樓 🥐 拯救麵包店 (9:10 + 20分)</button>
+          <button class="jump-btn" onclick="jumpTo('tower', 1)">2樓 🎬 拯救電影院 (2:25 + 30分)</button>
+          <button class="jump-btn" onclick="jumpTo('tower', 2)">3樓 🚌 拯救巴士站 (5:18 + 25分)</button>
+          <button class="jump-btn" onclick="jumpTo('tower', 3)">4樓 📐 拯救數學課室 (9:40 + 35分)</button>
+        </div>
+
+        <div class="jump-group-title">😈 第四階段：塔頂結局</div>
+        <div class="jump-grid">
+          <button class="jump-btn full" style="background:#fff1f2;border-color:#fb7185;color:#9f1239;" onclick="jumpTo('boss')">
+            😈 塔頂遇見吞時魔王（最後反撲與勝利結算）
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- EMBEDDED JAVASCRIPT APPLICATION                           -->
+  <!-- ========================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ==========================================================
+       * 1. CUSTOM COLORED SVG ILLUSTRATIONS (TRIALS & 4 TOWER FLOORS)
+       * ========================================================== */
+      const ART_SVGS = {
+        classroom:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<polygon points="8,24 32,10 56,24" fill="#ef4444" stroke="#7f1d1d" stroke-width="2.5"/>' +
+            '<rect x="13" y="24" width="38" height="30" rx="3" fill="#fef3c7" stroke="#92400e" stroke-width="2.5"/>' +
+            '<circle cx="32" cy="31" r="7" fill="#ffffff" stroke="#1e3a8a" stroke-width="2"/>' +
+            '<line x1="32" y1="31" x2="32" y2="27" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>' +
+            '<line x1="32" y1="31" x2="35" y2="31" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>' +
+            '<rect x="26" y="42" width="12" height="12" rx="2" fill="#38bdf8" stroke="#0369a1" stroke-width="2"/>' +
+          '</svg>',
+
+        lunchbox:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<rect x="10" y="20" width="44" height="30" rx="8" fill="#fb923c" stroke="#7c2d12" stroke-width="2.5"/>' +
+            '<rect x="15" y="25" width="34" height="20" rx="5" fill="#fffbeb"/>' +
+            '<circle cx="25" cy="35" r="6.5" fill="#fde047" stroke="#ca8a04" stroke-width="1.5"/>' +
+            '<circle cx="39" cy="33" r="5" fill="#4ade80" stroke="#15803d" stroke-width="1.5"/>' +
+            '<circle cx="38" cy="40" r="4" fill="#f43f5e"/>' +
+            '<line x1="14" y1="13" x2="50" y2="11" stroke="#92400e" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="14" y1="16" x2="50" y2="15" stroke="#b45309" stroke-width="2.5" stroke-linecap="round"/>' +
+          '</svg>',
+
+        park:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<rect x="8" y="48" width="48" height="8" rx="4" fill="#22c55e" stroke="#14532d" stroke-width="2"/>' +
+            '<line x1="18" y1="20" x2="18" y2="48" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>' +
+            '<path d="M18,22 Q32,24 48,46" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>' +
+            '<circle cx="48" cy="18" r="7" fill="#fde047" stroke="#d97706" stroke-width="2"/>' +
+          '</svg>',
+
+        fireworks:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<rect x="8" y="8" width="48" height="48" rx="12" fill="#1e1b4b"/>' +
+            '<circle cx="32" cy="32" r="4" fill="#fde047"/>' +
+            '<line x1="32" y1="13" x2="32" y2="23" stroke="#fb7185" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="32" y1="41" x2="32" y2="51" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="13" y1="32" x2="23" y2="32" stroke="#fde047" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="41" y1="32" x2="51" y2="32" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="18" y1="18" x2="25" y2="25" stroke="#c084fc" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="39" y1="39" x2="46" y2="46" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="46" y1="18" x2="39" y2="25" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>' +
+            '<line x1="25" y1="39" x2="18" y2="46" stroke="#fb7185" stroke-width="3" stroke-linecap="round"/>' +
+          '</svg>',
+
+        /* Floor 1: Bakery (Croissant Oven SVG) */
+        bakery:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<rect x="10" y="16" width="44" height="38" rx="7" fill="#d97706" stroke="#78350f" stroke-width="2.5"/>' +
+            '<rect x="16" y="25" width="32" height="22" rx="4" fill="#451a03" stroke="#fde047" stroke-width="2"/>' +
+            '<ellipse cx="32" cy="38" rx="11" ry="6" fill="#fbbf24" stroke="#92400e" stroke-width="1.8"/>' +
+            '<path d="M24,36 Q28,32 32,36 Q36,32 40,36" fill="none" stroke="#92400e" stroke-width="1.8" stroke-linecap="round"/>' +
+            '<circle cx="22" cy="20" r="2.2" fill="#fef08a"/>' +
+            '<circle cx="32" cy="20" r="2.2" fill="#34d399"/>' +
+            '<circle cx="42" cy="20" r="2.2" fill="#fb7185"/>' +
+            '<path d="M24,12 Q22,8 25,5 M34,12 Q32,8 35,5" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>' +
+          '</svg>',
+
+        /* Floor 2: Cinema (Clapperboard & Projector SVG) */
+        cinema:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<rect x="10" y="25" width="44" height="29" rx="5" fill="#1e293b" stroke="#0f172a" stroke-width="2.5"/>' +
+            '<polygon points="10,25 52,14 54,21 12,31" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>' +
+            '<polygon points="17,23 24,21 26,27 19,29" fill="#ef4444"/>' +
+            '<polygon points="31,19 38,17 40,23 33,25" fill="#ef4444"/>' +
+            '<polygon points="44,16 50,14 52,20 46,22" fill="#ef4444"/>' +
+            '<circle cx="32" cy="40" r="9" fill="#fbbf24" stroke="#ffffff" stroke-width="2"/>' +
+            '<polygon points="30,36 37,40 30,44" fill="#1e1b4b"/>' +
+          '</svg>',
+
+        /* Floor 3: Bus Stop (Hong Kong Double-Decker Bus & Bus Stop Sign SVG) */
+        busstop:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<!-- HK Red & Gold Double-Decker Bus -->' +
+            '<rect x="6" y="14" width="38" height="36" rx="6" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.2"/>' +
+            '<rect x="10" y="18" width="30" height="10" rx="2.5" fill="#bae6fd" stroke="#1e3a8a" stroke-width="1.5"/>' +
+            '<rect x="6" y="30" width="38" height="4" fill="#fbbf24"/>' +
+            '<rect x="10" y="36" width="18" height="9" rx="2" fill="#bae6fd" stroke="#1e3a8a" stroke-width="1.5"/>' +
+            '<rect x="31" y="36" width="9" height="13" rx="1.5" fill="#fef08a"/>' +
+            '<circle cx="15" cy="51" r="4.5" fill="#1e293b" stroke="#cbd5e1" stroke-width="1.8"/>' +
+            '<circle cx="35" cy="51" r="4.5" fill="#1e293b" stroke="#cbd5e1" stroke-width="1.8"/>' +
+            '<!-- Bus Stop Sign Post -->' +
+            '<line x1="53" y1="22" x2="53" y2="54" stroke="#475569" stroke-width="3" stroke-linecap="round"/>' +
+            '<circle cx="53" cy="18" r="7" fill="#fef08a" stroke="#dc2626" stroke-width="2.5"/>' +
+            '<text x="53" y="21" text-anchor="middle" font-size="8" font-weight="900" fill="#1e3a8a">BUS</text>' +
+          '</svg>',
+
+        /* Floor 4: Math Classroom (Blackboard & Golden Set Square SVG) */
+        mathclass:
+          '<svg viewBox="0 0 64 64" width="52" height="52">' +
+            '<!-- Green Chalkboard -->' +
+            '<rect x="8" y="12" width="46" height="32" rx="4" fill="#065f46" stroke="#92400e" stroke-width="3"/>' +
+            '<text x="15" y="27" font-size="11" font-weight="900" fill="#ffffff">+ − ×</text>' +
+            '<circle cx="42" cy="26" r="6.5" fill="none" stroke="#fde047" stroke-width="2"/>' +
+            '<line x1="42" y1="26" x2="42" y2="22" stroke="#fde047" stroke-width="1.8"/>' +
+            '<line x1="42" y1="26" x2="45" y2="26" stroke="#fde047" stroke-width="1.8"/>' +
+            '<!-- Golden Set Square Ruler -->' +
+            '<polygon points="22,54 56,54 22,28" fill="#fbbf24" stroke="#78350f" stroke-width="2.2" opacity="0.96"/>' +
+            '<polygon points="27,49 43,49 27,37" fill="#065f46" stroke="#78350f" stroke-width="1.5"/>' +
+          '</svg>'
+      };
+
+      /* ==========================================================
+       * 2. CURRICULUM QUESTION DATA (WITH RED BOLD DURATIONS)
+       * ========================================================== */
+      const TRIAL_QUESTIONS = [
+        {
+          id: 'trial-1',
+          tag: '守護者試煉・第 1 題',
+          title: '班主任課的結束時間',
+          artKey: 'classroom',
+          htmlText: '班主任課在 <span class="start-blue">8時正</span> 開始，會進行 <span class="duration-red">20分鐘</span>，班主任課在何時結束？',
+          startH: 8,
+          startM: 0,
+          duration: 20,
+          strategy: ''
+        },
+        {
+          id: 'trial-2',
+          tag: '守護者試煉・第 2 題',
+          title: '志明吃午飯',
+          artKey: 'lunchbox',
+          htmlText: '志明在 <span class="start-blue">1時5分</span> 開始吃午飯，吃了 <span class="duration-red">22分鐘</span>，志明在何時吃完午飯？',
+          startH: 1,
+          startM: 5,
+          duration: 22,
+          strategy: '小貼士：先由數字 1 開始 5 個一數數大格（20 分鐘），再數餘下的 2 小格！'
+        },
+        {
+          id: 'trial-3',
+          tag: '守護者試煉・第 3 題',
+          title: '小明到公園玩耍',
+          artKey: 'park',
+          htmlText: '小明在 <span class="start-blue">4時12分</span> 到公園玩耍，<span class="duration-red">25分鐘</span> 後離開，小明在何時離開公園？',
+          startH: 4,
+          startM: 12,
+          duration: 25,
+          strategy: '教學策略：先數 3 小格到最近的數字 3，再於數字之間 5 個一數數大格，最後數餘下 2 小格！'
+        },
+        {
+          id: 'trial-4',
+          tag: '守護者試煉・第 4 題',
+          title: '璀璨煙花表演',
+          artKey: 'fireworks',
+          htmlText: '煙花表演在 <span class="start-blue">10時55分</span> 開始，維持 <span class="duration-red">15分鐘</span>，煙花表演應在何時結束？',
+          startH: 10,
+          startM: 55,
+          duration: 15,
+          strategy: '小心進位：當分針順時針跨過數字 12，時針會由 10 時進到 11 時喔！'
+        }
+      ];
+
+      const TOWER_QUESTIONS = [
+        {
+          id: 'tower-1',
+          floor: 1,
+          shopName: '麵包店',
+          emoji: '🥐',
+          artKey: 'bakery',
+          tag: '第 1 關（1樓）・拯救麵包店',
+          title: '拯救麵包店',
+          htmlText: '麵包師傅在 <span class="start-blue">9時10分</span> 把麵包放進烤爐，需要烤 <span class="duration-red">20分鐘</span>，麵包應在何時烤製完成？',
+          startH: 9,
+          startM: 10,
+          duration: 20,
+          strategy: '',
+          rescueMsg: '香噴噴的牛角包準時出爐！麵包店得救了！'
+        },
+        {
+          id: 'tower-2',
+          floor: 2,
+          shopName: '電影院',
+          emoji: '🎬',
+          artKey: 'cinema',
+          tag: '第 2 關（2樓）・拯救電影院',
+          title: '拯救電影院',
+          htmlText: '電影在 <span class="start-blue">2時25分</span> 開始播放，片長 <span class="duration-red">30分鐘</span>，電影在何時播放完結？',
+          startH: 2,
+          startM: 25,
+          duration: 30,
+          strategy: '',
+          rescueMsg: '電影準時圓滿放映完結！電影院得救了！'
+        },
+        {
+          id: 'tower-3',
+          floor: 3,
+          shopName: '巴士站',
+          emoji: '🚌',
+          artKey: 'busstop',
+          tag: '第 3 關（3樓）・拯救巴士站',
+          title: '拯救巴士站',
+          htmlText: '巴士在 <span class="start-blue">5時18分</span> 從總站開出，行駛 <span class="duration-red">25分鐘</span> 後到達巴士站，巴士在何時到站？',
+          startH: 5,
+          startM: 18,
+          duration: 25,
+          strategy: '鞏固策略：先數 2 小格到最近的數字 4（20 分），再於數字之間 5 個一數數大格，最後數餘下 3 小格！',
+          rescueMsg: '雙層巴士準時抵達巴士站！乘客們得救了！'
+        },
+        {
+          id: 'tower-4',
+          floor: 4,
+          shopName: '數學課室',
+          emoji: '📐',
+          artKey: 'mathclass',
+          tag: '第 4 關（4樓）・拯救數學課室',
+          title: '拯救數學課室',
+          htmlText: '數學課在 <span class="start-blue">9時40分</span> 開始，上 <span class="duration-red">35分鐘</span> 課，數學課在何時結束？',
+          startH: 9,
+          startM: 40,
+          duration: 35,
+          strategy: '進位挑戰：從數字 8 開始數 7 個大格共 35 分鐘，注意分針跨過 12 時針會進到 10 時！',
+          rescueMsg: '數學課準時下課！全部 4 層建築獲救，衝向塔頂！'
+        }
+      ];
+
+      const GATE_PASSCODE = '1130';
+      const TEACHER_PASSCODE = '1999';
+      const MAX_ELAPSED_MINUTES = 75;
+
+      /* ==========================================================
+       * 3. APPLICATION STATE
+       * ========================================================== */
+      const state = {
+        screen: 'intro', // 'intro' | 'trial' | 'gate' | 'tower' | 'boss'
+        questionIndex: 0,
+        startTotalMinutes: 8 * 60,
+        elapsedMinutes: 0,
+        solvedCurrent: false,
+        solvedIds: new Set(),
+        showHops: true,
+        showDigital: true,
+        soundEnabled: true,
+        isDragging: false,
+        gateInput: '',
+        teacherModalOpen: false,
+        teacherUnlocked: false,
+        teacherInput: '',
+        bossTimer: null
+      };
+
+      /* ==========================================================
+       * 4. WEB AUDIO API SYNTHESIZER (ZERO EXTERNAL AUDIO FILES)
+       * ========================================================== */
+      let audioCtx = null;
+
+      function getAudioContext() {
+        if (!state.soundEnabled) return null;
+        try {
+          if (!audioCtx) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (Ctx) audioCtx = new Ctx();
+          }
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(function () {});
+          }
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playTone(freq, duration, type, volume, delay) {
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime + (delay || 0);
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type || 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(volume || 0.14, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.02);
+        } catch (e) {}
+      }
+
+      function playTickSound(isMajor) {
+        if (isMajor) {
+          playTone(880, 0.085, 'triangle', 0.14, 0);
+        } else {
+          playTone(540, 0.045, 'sine', 0.08, 0);
+        }
+      }
+
+      function playKeySound() {
+        playTone(680, 0.055, 'sine', 0.11, 0);
+      }
+
+      function playSuccessSound() {
+        playTone(523.25, 0.14, 'triangle', 0.16, 0.00);
+        playTone(659.25, 0.14, 'triangle', 0.16, 0.10);
+        playTone(783.99, 0.16, 'triangle', 0.16, 0.20);
+        playTone(1046.5, 0.34, 'triangle', 0.18, 0.31);
+      }
+
+      function playErrorSound() {
+        playTone(260, 0.14, 'sawtooth', 0.09, 0.00);
+        playTone(195, 0.22, 'sawtooth', 0.09, 0.12);
+      }
+
+      function playUnlockSound() {
+        const notes = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+        for (let i = 0; i < notes.length; i++) {
+          playTone(notes[i], 0.2, 'triangle', 0.15, i * 0.075);
+        }
+      }
+
+      function playBossRumble() {
+        playTone(110, 0.85, 'sawtooth', 0.16, 0.00);
+        playTone(116.5, 0.85, 'sawtooth', 0.14, 0.06);
+        playTone(82.4, 1.0, 'square', 0.12, 0.22);
+        playTone(65.4, 1.15, 'sawtooth', 0.16, 0.45);
+      }
+
+      /* ==========================================================
+       * 5. FULLSCREEN API SUPPORT (STANDARD + IPAD SAFARI)
+       * ========================================================== */
+      function isFullscreenActive() {
+        return Boolean(
+          document.fullscreenElement ||
+          document.webkitFullscreenElement ||
+          document.msFullscreenElement
+        );
+      }
+
+      function updateFullscreenLabels() {
+        const active = isFullscreenActive();
+        const topText = document.getElementById('topFsText');
+        const introText = document.getElementById('introFsText');
+        if (topText) topText.textContent = active ? '退出全屏' : '全屏';
+        if (introText) introText.textContent = active ? '退出全螢幕' : '全螢幕顯示';
+      }
+
+      window.showFsToast = function () {
+        document.getElementById('fsToast').classList.remove('hidden');
+      };
+
+      window.hideFsToast = function () {
+        document.getElementById('fsToast').classList.add('hidden');
+      };
+
+      window.toggleFullscreen = function () {
+        playKeySound();
+        const docEl = document.documentElement;
+        try {
+          if (isFullscreenActive()) {
+            const exitFn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+            if (exitFn) {
+              const res = exitFn.call(document);
+              if (res && typeof res.catch === 'function') res.catch(function () {});
+            }
+          } else {
+            const reqFn = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+            if (reqFn) {
+              const res = reqFn.call(docEl);
+              if (res && typeof res.catch === 'function') {
+                res.catch(function () {
+                  window.showFsToast();
+                });
+              }
+            } else {
+              window.showFsToast();
+            }
+          }
+        } catch (err) {
+          window.showFsToast();
+        }
+      };
+
+      document.addEventListener('fullscreenchange', updateFullscreenLabels);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenLabels);
+
+      /* ==========================================================
+       * 6. TIME FORMATTING HELPERS
+       * ========================================================== */
+      function formatChineseTime(totalMinutes) {
+        let h = Math.floor(totalMinutes / 60) % 12;
+        if (h === 0) h = 12;
+        const m = totalMinutes % 60;
+        if (m === 0) return h + ' 時正';
+        return h + ' 時 ' + m + ' 分';
+      }
+
+      /* ==========================================================
+       * 7. SVG CLOCK RENDERING & PEDAGOGICAL ARC SYSTEM
+       * ========================================================== */
+      const CX = 230;
+      const CY = 230;
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+
+      function polarToXY(cx, cy, r, degClockwiseFrom12) {
+        const rad = (degClockwiseFrom12 - 90) * Math.PI / 180;
+        return {
+          x: cx + r * Math.cos(rad),
+          y: cy + r * Math.sin(rad)
+        };
+      }
+
+      function svgEl(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        if (attrs) {
+          for (const key in attrs) {
+            if (Object.prototype.hasOwnProperty.call(attrs, key)) {
+              el.setAttribute(key, String(attrs[key]));
+            }
+          }
+        }
+        return el;
+      }
+
+      function buildStaticClockFace() {
+        const layer = document.getElementById('clockTicksLayer');
+        layer.innerHTML = '';
+
+        for (let i = 0; i < 60; i++) {
+          const deg = i * 6;
+          const isFive = (i % 5 === 0);
+          const p1 = polarToXY(CX, CY, isFive ? 127 : 135, deg);
+          const p2 = polarToXY(CX, CY, 143, deg);
+          layer.appendChild(svgEl('line', {
+            x1: p1.x.toFixed(2),
+            y1: p1.y.toFixed(2),
+            x2: p2.x.toFixed(2),
+            y2: p2.y.toFixed(2),
+            stroke: isFive ? '#b45309' : '#94a3b8',
+            'stroke-width': isFive ? '4.2' : '1.8',
+            'stroke-linecap': 'round'
+          }));
+        }
+
+        for (let h = 1; h <= 12; h++) {
+          const deg = h * 30;
+          const pos = polarToXY(CX, CY, 107, deg);
+          const txt = svgEl('text', {
+            x: pos.x.toFixed(2),
+            y: (pos.y + 8.5).toFixed(2),
+            'text-anchor': 'middle',
+            'font-family': 'Trebuchet MS, Arial Rounded MT Bold, sans-serif',
+            'font-size': (h % 3 === 0) ? '27' : '23',
+            'font-weight': '900',
+            fill: (h % 3 === 0) ? '#1e1b4b' : '#334155'
+          });
+          txt.textContent = String(h);
+          layer.appendChild(txt);
+        }
+      }
+
+      function buildPiePath(cx, cy, r, startDeg, sweepDeg) {
+        const pStart = polarToXY(cx, cy, r, startDeg);
+        const pEnd = polarToXY(cx, cy, r, startDeg + sweepDeg);
+        const largeArc = sweepDeg > 180 ? 1 : 0;
+        return 'M ' + cx + ' ' + cy +
+          ' L ' + pStart.x.toFixed(2) + ' ' + pStart.y.toFixed(2) +
+          ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + pEnd.x.toFixed(2) + ' ' + pEnd.y.toFixed(2) +
+          ' Z';
+      }
+
+      function computeTimeSegments(startMin, elapsed) {
+        const remToNext5 = (5 - (startMin % 5)) % 5;
+        const nextAnchorMin = startMin + remToNext5;
+        const nextClockNum = ((nextAnchorMin % 60) / 5) || 12;
+
+        const leadSmall = Math.min(elapsed, remToNext5);
+        const afterLead = Math.max(0, elapsed - remToNext5);
+        const numFives = Math.floor(afterLead / 5);
+        const trailSmall = afterLead % 5;
+
+        return {
+          remToNext5: remToNext5,
+          nextAnchorMin: nextAnchorMin,
+          nextClockNum: nextClockNum,
+          leadSmall: leadSmall,
+          numFives: numFives,
+          fivesMinutes: numFives * 5,
+          trailSmall: trailSmall
+        };
+      }
+
+      function drawSmallStepHops(container, startMin, count, strokeColor, fillColor) {
+        for (let s = 1; s <= count; s++) {
+          const deg1 = (startMin + s - 1) * 6;
+          const deg2 = (startMin + s) * 6;
+          const degMid = (deg1 + deg2) / 2;
+
+          const p1 = polarToXY(CX, CY, 163, deg1);
+          const p2 = polarToXY(CX, CY, 163, deg2);
+          const pCtrl = polarToXY(CX, CY, 181, degMid);
+
+          container.appendChild(svgEl('path', {
+            d: 'M ' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1) +
+               ' Q ' + pCtrl.x.toFixed(1) + ' ' + pCtrl.y.toFixed(1) +
+               ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1),
+            fill: 'none',
+            stroke: strokeColor,
+            'stroke-width': '3.5',
+            'stroke-linecap': 'round'
+          }));
+
+          container.appendChild(svgEl('circle', {
+            cx: p2.x.toFixed(1),
+            cy: p2.y.toFixed(1),
+            r: '4.2',
+            fill: fillColor,
+            stroke: '#ffffff',
+            'stroke-width': '1.5'
+          }));
+
+          const pLbl = polarToXY(CX, CY, 205, deg2);
+          container.appendChild(svgEl('circle', {
+            cx: pLbl.x.toFixed(1),
+            cy: pLbl.y.toFixed(1),
+            r: '10.2',
+            fill: fillColor,
+            stroke: '#ffffff',
+            'stroke-width': '1.8'
+          }));
+
+          const txt = svgEl('text', {
+            x: pLbl.x.toFixed(1),
+            y: (pLbl.y + 3.6).toFixed(1),
+            'text-anchor': 'middle',
+            'font-family': 'Trebuchet MS, Arial Rounded MT Bold, sans-serif',
+            'font-size': '10.2',
+            'font-weight': '900',
+            fill: '#ffffff'
+          });
+          txt.textContent = '+' + s;
+          container.appendChild(txt);
+        }
+      }
+
+      function renderClock() {
+        const startMin = state.startTotalMinutes % 60;
+        const startDeg = startMin * 6;
+        const currentTotal = state.startTotalMinutes + state.elapsedMinutes;
+        const currentMin = currentTotal % 60;
+        const minDeg = currentMin * 6;
+        const hourDeg = ((currentTotal % 720) / 720) * 360;
+
+        // 1. Position Hour & Minute Hands
+        document.getElementById('hourHandGroup').setAttribute('transform', 'rotate(' + hourDeg.toFixed(2) + ' ' + CX + ' ' + CY + ')');
+        document.getElementById('minuteHandGroup').setAttribute('transform', 'rotate(' + minDeg.toFixed(2) + ' ' + CX + ' ' + CY + ')');
+
+        // 2. Start-Time Dark-Blue Dashed Minute Hand
+        const ghostLayer = document.getElementById('startGhostLayer');
+        ghostLayer.innerHTML = '';
+        const ghostTip = polarToXY(CX, CY, 140, startDeg);
+        ghostLayer.appendChild(svgEl('line', {
+          x1: CX,
+          y1: CY,
+          x2: ghostTip.x.toFixed(2),
+          y2: ghostTip.y.toFixed(2),
+          stroke: '#1d4ed8',
+          'stroke-width': '3.5',
+          'stroke-dasharray': '7 5',
+          'stroke-linecap': 'round',
+          opacity: '0.88'
+        }));
+        const startRimDot = polarToXY(CX, CY, 146, startDeg);
+        ghostLayer.appendChild(svgEl('circle', {
+          cx: startRimDot.x.toFixed(2),
+          cy: startRimDot.y.toFixed(2),
+          r: '6',
+          fill: '#1d4ed8',
+          stroke: '#ffffff',
+          'stroke-width': '2'
+        }));
+
+        // 3. Elapsed Pie Sector Wedge (Supports 0 to 75 minutes cleanly)
+        const sectorLayer = document.getElementById('elapsedSectorLayer');
+        sectorLayer.innerHTML = '';
+        if (state.elapsedMinutes > 0) {
+          if (state.elapsedMinutes === 60) {
+            sectorLayer.appendChild(svgEl('circle', {
+              cx: CX,
+              cy: CY,
+              r: '142',
+              fill: '#38bdf8',
+              opacity: '0.24'
+            }));
+          } else if (state.elapsedMinutes > 60) {
+            sectorLayer.appendChild(svgEl('circle', {
+              cx: CX,
+              cy: CY,
+              r: '142',
+              fill: '#38bdf8',
+              opacity: '0.13'
+            }));
+            sectorLayer.appendChild(svgEl('path', {
+              d: buildPiePath(CX, CY, 142, startDeg, (state.elapsedMinutes - 60) * 6),
+              fill: '#0284c7',
+              opacity: '0.24'
+            }));
+          } else {
+            sectorLayer.appendChild(svgEl('path', {
+              d: buildPiePath(CX, CY, 142, startDeg, state.elapsedMinutes * 6),
+              fill: '#38bdf8',
+              opacity: '0.24'
+            }));
+          }
+        }
+
+        // 4. Pedagogical Segments
+        const seg = computeTimeSegments(startMin, state.elapsedMinutes);
+
+        // 5. Guide Highlight Ring on Nearest Next Clock Number
+        const guideLayer = document.getElementById('guideNumberLayer');
+        guideLayer.innerHTML = '';
+        if (state.showHops && seg.remToNext5 > 0) {
+          const targetDeg = seg.nextClockNum * 30;
+          const pos = polarToXY(CX, CY, 107, targetDeg);
+          guideLayer.appendChild(svgEl('circle', {
+            cx: pos.x.toFixed(2),
+            cy: pos.y.toFixed(2),
+            r: '20',
+            fill: 'rgba(20, 184, 166, 0.18)',
+            stroke: '#0d9488',
+            'stroke-width': '4',
+            class: 'guide-ring-pulse'
+          }));
+        }
+
+        // 6. Outer Hopping Arcs (+5 arcs STRICTLY between clock numbers)
+        const hopsLayer = document.getElementById('hopArcsLayer');
+        hopsLayer.innerHTML = '';
+
+        if (state.showHops && state.elapsedMinutes > 0) {
+          if (seg.leadSmall > 0) {
+            drawSmallStepHops(hopsLayer, startMin, seg.leadSmall, '#14b8a6', '#0f766e');
+          }
+
+          for (let k = 0; k < seg.numFives; k++) {
+            const mStart = seg.nextAnchorMin + k * 5;
+            const mEnd = mStart + 5;
+            const a1 = mStart * 6;
+            const a2 = mEnd * 6;
+            const aMid = (a1 + a2) / 2;
+            const isLap2 = k >= 12;
+
+            const baseR = isLap2 ? 171 : 163;
+            const ctrlR = isLap2 ? 214 : 206;
+            const badgeR = isLap2 ? 206 : 198;
+
+            const p1 = polarToXY(CX, CY, baseR, a1);
+            const p2 = polarToXY(CX, CY, baseR, a2);
+            const pCtrl = polarToXY(CX, CY, ctrlR, aMid);
+            const pBadge = polarToXY(CX, CY, badgeR, aMid);
+
+            hopsLayer.appendChild(svgEl('path', {
+              d: 'M ' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1) +
+                 ' Q ' + pCtrl.x.toFixed(1) + ' ' + pCtrl.y.toFixed(1) +
+                 ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1),
+              fill: 'none',
+              stroke: isLap2 ? '#ea580c' : '#f59e0b',
+              'stroke-width': '4.5',
+              'stroke-linecap': 'round'
+            }));
+
+            hopsLayer.appendChild(svgEl('circle', {
+              cx: p2.x.toFixed(1),
+              cy: p2.y.toFixed(1),
+              r: '4.8',
+              fill: isLap2 ? '#c2410c' : '#d97706',
+              stroke: '#ffffff',
+              'stroke-width': '1.8'
+            }));
+
+            hopsLayer.appendChild(svgEl('circle', {
+              cx: pBadge.x.toFixed(1),
+              cy: pBadge.y.toFixed(1),
+              r: '14.5',
+              fill: isLap2 ? '#ea580c' : '#f59e0b',
+              stroke: '#ffffff',
+              'stroke-width': '2.2'
+            }));
+
+            const lbl = svgEl('text', {
+              x: pBadge.x.toFixed(1),
+              y: (pBadge.y + 4.8).toFixed(1),
+              'text-anchor': 'middle',
+              'font-family': 'Trebuchet MS, Arial Rounded MT Bold, sans-serif',
+              'font-size': '13',
+              'font-weight': '900',
+              fill: '#ffffff'
+            });
+            lbl.textContent = '+5';
+            hopsLayer.appendChild(lbl);
+          }
+
+          if (seg.trailSmall > 0) {
+            const trailStartMin = seg.nextAnchorMin + seg.numFives * 5;
+            drawSmallStepHops(hopsLayer, trailStartMin, seg.trailSmall, '#f97316', '#ea580c');
+          }
+        }
+
+        // 7. Digital Time Badge
+        const digitalBadge = document.getElementById('digitalBadge');
+        if (state.showDigital) {
+          digitalBadge.classList.remove('hidden');
+          document.getElementById('digitalTimeText').textContent = formatChineseTime(currentTotal);
+        } else {
+          digitalBadge.classList.add('hidden');
+        }
+
+        // 8. Cross-12 Hour Advance Badge
+        const startHourIdx = Math.floor(state.startTotalMinutes / 60);
+        const currHourIdx = Math.floor(currentTotal / 60);
+        const crossBadge = document.getElementById('crossHourBadge');
+        if (currHourIdx > startHourIdx) {
+          crossBadge.classList.remove('hidden');
+        } else {
+          crossBadge.classList.add('hidden');
+        }
+
+        // 9. Live Breakdown Formula Strip
+        const bdBar = document.getElementById('breakdownBar');
+        if (!state.showHops) {
+          bdBar.classList.add('hidden');
+        } else {
+          bdBar.classList.remove('hidden');
+          if (state.elapsedMinutes === 0) {
+            if (seg.remToNext5 > 0) {
+              bdBar.innerHTML = '💡 提示：先拖動藍色分針數 <span class="bd-teal">' + seg.remToNext5 + ' 小格</span> 到最近的數字 <strong>' + seg.nextClockNum + '</strong>，再開始 5 個一數！';
+            } else {
+              bdBar.innerHTML = '🐾 拖動藍色分針順時針 5 個一數（已移動 0 分鐘）';
+            }
+          } else {
+            const parts = [];
+            if (seg.leadSmall > 0) {
+              parts.push('<span class="bd-teal">先數小格 ' + seg.leadSmall + ' 分</span>');
+            }
+            if (seg.numFives > 0) {
+              parts.push('<span class="bd-gold">數大格 ' + seg.fivesMinutes + ' 分（' + seg.numFives + ' 個 5 分）</span>');
+            }
+            if (seg.trailSmall > 0) {
+              parts.push('<span class="bd-orange">餘下小格 ' + seg.trailSmall + ' 分</span>');
+            }
+            bdBar.innerHTML = parts.join(' ＋ ') + ' ＝ <span class="bd-total">已移動 ' + state.elapsedMinutes + ' 分鐘</span>';
+          }
+        }
+      }
+
+      /* ==========================================================
+       * 8. POINTER EVENTS DRAGGING (TOUCH + APPLE PENCIL + MOUSE)
+       * ========================================================== */
+      function initClockDragging() {
+        const svg = document.getElementById('clockSvg');
+
+        function pointerToMinute(evt) {
+          const rect = svg.getBoundingClientRect();
+          if (!rect.width || !rect.height) return null;
+          const x = (evt.clientX - rect.left) * (460 / rect.width);
+          const y = (evt.clientY - rect.top) * (460 / rect.height);
+          const dx = x - CX;
+          const dy = y - CY;
+          if (Math.hypot(dx, dy) < 20) return null;
+
+          let deg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+          if (deg < 0) deg += 360;
+          return Math.round(deg / 6) % 60;
+        }
+
+        function updateByTargetMinute(targetMin) {
+          if (targetMin === null || state.solvedCurrent) return;
+          const currentMin = (state.startTotalMinutes + state.elapsedMinutes) % 60;
+          let delta = targetMin - currentMin;
+          if (delta > 30) delta -= 60;
+          if (delta < -30) delta += 60;
+
+          if (delta === 0 || Math.abs(delta) > 22) return;
+
+          const nextElapsed = Math.max(0, Math.min(MAX_ELAPSED_MINUTES, state.elapsedMinutes + delta));
+          if (nextElapsed !== state.elapsedMinutes) {
+            state.elapsedMinutes = nextElapsed;
+            const newCurrMin = (state.startTotalMinutes + state.elapsedMinutes) % 60;
+            playTickSound(newCurrMin % 5 === 0);
+            renderClock();
+          }
+        }
+
+        svg.addEventListener('pointerdown', function (e) {
+          if (state.solvedCurrent) return;
+          const m = pointerToMinute(e);
+          if (m === null) return;
+          state.isDragging = true;
+          try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+
+          const currentMin = (state.startTotalMinutes + state.elapsedMinutes) % 60;
+          let delta = m - currentMin;
+          if (delta > 30) delta -= 60;
+          if (delta < -30) delta += 60;
+          if (Math.abs(delta) <= 12) {
+            updateByTargetMinute(m);
+          }
+        });
+
+        svg.addEventListener('pointermove', function (e) {
+          if (!state.isDragging) return;
+          e.preventDefault();
+          const m = pointerToMinute(e);
+          updateByTargetMinute(m);
+        });
+
+        function stopDrag(e) {
+          if (!state.isDragging) return;
+          state.isDragging = false;
+          try { svg.releasePointerCapture(e.pointerId); } catch (_) {}
+        }
+
+        svg.addEventListener('pointerup', stopDrag);
+        svg.addEventListener('pointercancel', stopDrag);
+      }
+
+      /* ==========================================================
+       * 9. CLOCK BUTTON CONTROLS & TOPBAR TOGGLES
+       * ========================================================== */
+      window.stepMinutes = function (delta) {
+        if (state.solvedCurrent) return;
+        const next = Math.max(0, Math.min(MAX_ELAPSED_MINUTES, state.elapsedMinutes + delta));
+        if (next !== state.elapsedMinutes) {
+          state.elapsedMinutes = next;
+          const newCurrMin = (state.startTotalMinutes + state.elapsedMinutes) % 60;
+          playTickSound(Math.abs(delta) === 5 || newCurrMin % 5 === 0);
+          renderClock();
+        }
+      };
+
+      window.resetClockToStart = function () {
+        if (state.solvedCurrent) return;
+        state.elapsedMinutes = 0;
+        playKeySound();
+        renderClock();
+      };
+
+      window.toggleHops = function () {
+        state.showHops = !state.showHops;
+        const btn = document.getElementById('btnToggleHops');
+        btn.className = 'tool-btn ' + (state.showHops ? 'active-on' : 'active-off');
+        btn.innerHTML = '<span>🔢</span><span>跳格提示：' + (state.showHops ? '開' : '關') + '</span>';
+        playKeySound();
+        renderClock();
+      };
+
+      window.toggleDigital = function () {
+        state.showDigital = !state.showDigital;
+        const btn = document.getElementById('btnToggleDigital');
+        btn.className = 'tool-btn ' + (state.showDigital ? 'active-on' : 'active-off');
+        btn.innerHTML = '<span>🕒</span><span>電子鐘：' + (state.showDigital ? '開' : '關') + '</span>';
+        playKeySound();
+        renderClock();
+      };
+
+      window.toggleSound = function () {
+        state.soundEnabled = !state.soundEnabled;
+        const btn = document.getElementById('btnToggleSound');
+        btn.className = 'tool-btn ' + (state.soundEnabled ? 'active-on' : 'active-off');
+        document.getElementById('soundIcon').textContent = state.soundEnabled ? '🔊' : '🔇';
+        if (state.soundEnabled) playKeySound();
+      };
+
+      /* ==========================================================
+       * 10. SCREEN MANAGEMENT & QUESTION LOADING
+       * ========================================================== */
+      function showOnlyScreen(id) {
+        const screens = ['screenIntro', 'screenGame', 'screenGate', 'screenBoss'];
+        for (let i = 0; i < screens.length; i++) {
+          document.getElementById(screens[i]).classList.toggle('hidden', screens[i] !== id);
+        }
+      }
+
+      function updateGems() {
+        document.getElementById('gemCount').textContent = String(state.solvedIds.size);
+      }
+
+      function getCurrentQuestion() {
+        if (state.screen === 'trial') return TRIAL_QUESTIONS[state.questionIndex];
+        if (state.screen === 'tower') return TOWER_QUESTIONS[state.questionIndex];
+        return null;
+      }
+
+      window.startTrials = function () {
+        playSuccessSound();
+        loadQuestion('trial', 0);
+      };
+
+      function loadQuestion(mode, idx) {
+        if (state.bossTimer) {
+          clearTimeout(state.bossTimer);
+          state.bossTimer = null;
+        }
+        state.screen = mode;
+        state.questionIndex = idx;
+        state.solvedCurrent = false;
+
+        const isTrial = (mode === 'trial');
+        const list = isTrial ? TRIAL_QUESTIONS : TOWER_QUESTIONS;
+        const q = list[idx];
+
+        state.startTotalMinutes = q.startH * 60 + q.startM;
+        state.elapsedMinutes = 0;
+
+        showOnlyScreen('screenGame');
+
+        document.getElementById('headerStageLabel').textContent = isTrial
+          ? '保良局田家炳小學｜時間間隔：找結束時間（試煉 ' + (idx + 1) + '/4）'
+          : '保良局田家炳小學｜時間間隔：找結束時間（' + q.floor + '樓・' + q.shopName + '）';
+
+        const chip = document.getElementById('phaseChip');
+        chip.className = 'phase-chip ' + (isTrial ? 'trial' : 'tower');
+        chip.textContent = isTrial ? '🛡️ 守護者試煉' : '🏰 攻塔拯救時光村';
+
+        document.getElementById('stageHeading').textContent = isTrial
+          ? '試煉題 ' + (idx + 1) + ' / ' + list.length
+          : '第 ' + q.floor + ' 關（' + q.floor + '樓）：拯救' + q.shopName;
+
+        // Progress Dots
+        const dotsEl = document.getElementById('progressDots');
+        dotsEl.innerHTML = '';
+        for (let i = 0; i < list.length; i++) {
+          const item = list[i];
+          const dot = document.createElement('div');
+          const solved = state.solvedIds.has(item.id);
+          const isCur = (i === idx);
+          dot.className = 'p-dot' + (isCur ? ' current' : (solved ? ' done' : ''));
+          dot.textContent = (solved && !isCur) ? '✓' : String(i + 1);
+          dotsEl.appendChild(dot);
+        }
+
+        // Populate Question Card with Custom SVG Artwork & Red Bold Duration
+        document.getElementById('qArtBox').innerHTML = ART_SVGS[q.artKey] || '';
+        document.getElementById('qTag').textContent = q.tag;
+        document.getElementById('qTitle').textContent = q.title;
+        document.getElementById('qText').innerHTML = q.htmlText;
+        document.getElementById('qStartVal').textContent = formatChineseTime(state.startTotalMinutes);
+        document.getElementById('qDurVal').textContent = q.duration + ' 分鐘';
+
+        const stratBox = document.getElementById('strategyBox');
+        if (q.strategy) {
+          stratBox.classList.remove('hidden');
+          document.getElementById('strategyText').textContent = q.strategy;
+        } else {
+          stratBox.classList.add('hidden');
+        }
+
+        document.getElementById('feedbackBox').classList.add('hidden');
+        document.getElementById('btnSubmitAnswer').classList.remove('hidden');
+        document.getElementById('btnNextStage').classList.add('hidden');
+
+        document.getElementById('trialTipBox').classList.toggle('hidden', !isTrial);
+        document.getElementById('towerMapPanel').classList.toggle('hidden', isTrial);
+        if (!isTrial) renderTowerMap();
+
+        renderClock();
+      }
+
+      function renderTowerMap() {
+        const grid = document.getElementById('towerFloorsGrid');
+        grid.innerHTML = '';
+
+        for (let i = 0; i < TOWER_QUESTIONS.length; i++) {
+          const f = TOWER_QUESTIONS[i];
+          const isCur = (state.screen === 'tower' && state.questionIndex === i);
+          const isRescued = state.solvedIds.has(f.id);
+
+          const cell = document.createElement('div');
+          cell.className = 'tower-floor ' + (isCur ? 'active-floor' : (isRescued ? 'rescued-floor' : 'locked-floor'));
+
+          const statusHtml = isRescued
+            ? '<span class="floor-status done">✅ 已救</span>'
+            : (isCur
+                ? '<span class="floor-status cur">🛡️ 進行中</span>'
+                : '<span class="floor-status wait">🔒 待救</span>');
+
+          cell.innerHTML =
+            '<div class="floor-left">' +
+              '<span class="floor-num">' + f.floor + 'F</span>' +
+              '<span class="floor-name">' + f.emoji + ' ' + f.shopName + '</span>' +
+            '</div>' +
+            statusHtml;
+
+          grid.appendChild(cell);
+        }
+      }
+
+      /* ==========================================================
+       * 11. ANSWER VALIDATION & FEEDBACK
+       * ========================================================== */
+      window.checkAnswer = function () {
+        const q = getCurrentQuestion();
+        if (!q || state.solvedCurrent) return;
+
+        const fbBox = document.getElementById('feedbackBox');
+        const fbIcon = document.getElementById('feedbackIcon');
+        const fbTitle = document.getElementById('feedbackTitle');
+        const fbMsg = document.getElementById('feedbackMsg');
+
+        const startStr = formatChineseTime(state.startTotalMinutes);
+        const endTotal = state.startTotalMinutes + q.duration;
+        const endStr = formatChineseTime(endTotal);
+
+        if (state.elapsedMinutes === q.duration) {
+          state.solvedCurrent = true;
+          state.solvedIds.add(q.id);
+          updateGems();
+          playSuccessSound();
+          launchConfetti();
+
+          fbBox.className = 'feedback-box ok pop-in';
+          fbIcon.textContent = '🎉';
+          fbTitle.textContent = '答對了！結束時間是「' + endStr + '」！';
+
+          const seg = computeTimeSegments(q.startM, q.duration);
+          let detail = '從 ' + startStr + ' 順時針經過 ' + q.duration + ' 分鐘，分針與時針剛好指向 ' + endStr + '！';
+          if (seg.leadSmall > 0) {
+            detail = '太棒了！先數 ' + seg.leadSmall + ' 小格到數字 ' + seg.nextClockNum + '，再數 ' + seg.numFives + ' 大格（' + seg.fivesMinutes + ' 分）' +
+              (seg.trailSmall > 0 ? '，加上餘下 ' + seg.trailSmall + ' 小格' : '') + '，結束時間正是 ' + endStr + '！';
+          }
+          if (state.screen === 'tower' && q.rescueMsg) {
+            detail += ' ✨ ' + q.rescueMsg;
+          }
+          fbMsg.textContent = detail;
+
+          document.getElementById('btnSubmitAnswer').classList.add('hidden');
+          const nextBtn = document.getElementById('btnNextStage');
+          const nextTxt = document.getElementById('btnNextText');
+          nextBtn.classList.remove('hidden');
+
+          if (state.screen === 'trial') {
+            nextTxt.textContent = (state.questionIndex < TRIAL_QUESTIONS.length - 1)
+              ? '前往試煉題 ' + (state.questionIndex + 2)
+              : '完成試煉！前往時光塔金門 🔐';
+          } else {
+            renderTowerMap();
+            nextTxt.textContent = (state.questionIndex < TOWER_QUESTIONS.length - 1)
+              ? '攀登至 ' + (state.questionIndex + 2) + ' 樓 🏰'
+              : '衝上塔頂！直面吞時魔王 😈';
+          }
+        } else {
+          playErrorSound();
+          const card = document.getElementById('questionCard');
+          card.classList.remove('shake');
+          void card.offsetWidth;
+          card.classList.add('shake');
+
+          fbBox.className = 'feedback-box err';
+          fbIcon.textContent = '💪';
+          fbTitle.textContent = '再試試看，你快找到了！';
+
+          if (state.elapsedMinutes === 0) {
+            fbMsg.textContent = '你還沒有轉動分針喔！請拖動藍色分針（或按下方按鈕），順時針走 ' + q.duration + ' 分鐘！';
+          } else if (state.elapsedMinutes < q.duration) {
+            const diff = q.duration - state.elapsedMinutes;
+            fbMsg.textContent = '你目前轉了 ' + state.elapsedMinutes + ' 分鐘，還差 ' + diff + ' 分鐘才到 ' + q.duration + ' 分鐘，再順時針多轉一點吧！';
+          } else {
+            const diff = state.elapsedMinutes - q.duration;
+            fbMsg.textContent = '你目前轉了 ' + state.elapsedMinutes + ' 分鐘，比 ' + q.duration + ' 分鐘轉多了 ' + diff + ' 分鐘，往回撥一點吧！';
+          }
+        }
+      };
+
+      window.goNextStage = function () {
+        playKeySound();
+        if (state.screen === 'trial') {
+          if (state.questionIndex < TRIAL_QUESTIONS.length - 1) {
+            loadQuestion('trial', state.questionIndex + 1);
+          } else {
+            openPasswordGate();
+          }
+        } else if (state.screen === 'tower') {
+          if (state.questionIndex < TOWER_QUESTIONS.length - 1) {
+            loadQuestion('tower', state.questionIndex + 1);
+          } else {
+            openBossFinale();
+          }
+        }
+      };
+
+      /* ==========================================================
+       * 12. TIME TOWER PASSWORD GATE (1130)
+       * ========================================================== */
+      function openPasswordGate() {
+        state.screen = 'gate';
+        state.gateInput = '';
+        showOnlyScreen('screenGate');
+        document.getElementById('headerStageLabel').textContent = '保良局田家炳小學｜時間間隔：找結束時間（神秘金門）';
+        document.getElementById('gateFeedback').textContent = '';
+
+        const doors = document.getElementById('gateDoorsOverlay');
+        doors.classList.remove('opening', 'opened');
+        renderDigitBoxes('gateDigitBoxes', state.gateInput, false);
+      }
+
+      function renderDigitBoxes(containerId, valueStr, masked) {
+        const boxes = document.querySelectorAll('#' + containerId + ' .digit-box');
+        for (let i = 0; i < boxes.length; i++) {
+          const ch = valueStr[i] || '';
+          boxes[i].textContent = ch ? (masked ? '*' : ch) : '';
+          boxes[i].classList.toggle('filled', ch !== '');
+        }
+      }
+
+      window.pressGateDigit = function (d) {
+        if (state.screen !== 'gate' || state.gateInput.length >= 4) return;
+        playKeySound();
+        state.gateInput += d;
+        document.getElementById('gateFeedback').textContent = '';
+        renderDigitBoxes('gateDigitBoxes', state.gateInput, false);
+      };
+
+      window.clearGateDigits = function () {
+        if (state.screen !== 'gate') return;
+        playKeySound();
+        state.gateInput = '';
+        document.getElementById('gateFeedback').textContent = '';
+        renderDigitBoxes('gateDigitBoxes', state.gateInput, false);
+      };
+
+      window.submitGatePasscode = function () {
+        if (state.screen !== 'gate') return;
+        const fb = document.getElementById('gateFeedback');
+        if (state.gateInput === GATE_PASSCODE) {
+          playUnlockSound();
+          launchConfetti();
+          fb.style.color = '#059669';
+          fb.textContent = '✨ 密碼正確！時光塔金門正在開啟，出發拯救時光村！';
+
+          const doors = document.getElementById('gateDoorsOverlay');
+          doors.classList.add('opening');
+          setTimeout(function () {
+            doors.classList.add('opened');
+          }, 160);
+          setTimeout(function () {
+            loadQuestion('tower', 0);
+          }, 1350);
+        } else {
+          playErrorSound();
+          fb.style.color = '#e11d48';
+          fb.textContent = (state.gateInput.length < 4)
+            ? '請輸入完整的四位數字密碼喔！'
+            : '密碼不正確，請再試一次！';
+          const boxRow = document.getElementById('gateDigitBoxes');
+          boxRow.classList.remove('shake');
+          void boxRow.offsetWidth;
+          boxRow.classList.add('shake');
+          state.gateInput = '';
+          setTimeout(function () {
+            renderDigitBoxes('gateDigitBoxes', state.gateInput, false);
+          }, 320);
+        }
+      };
+
+      /* ==========================================================
+       * 13. TOWER TOP BOSS COUNTERATTACK & VICTORY SETTLEMENT
+       * ========================================================== */
+      function openBossFinale() {
+        state.screen = 'boss';
+        showOnlyScreen('screenBoss');
+        document.getElementById('headerStageLabel').textContent = '保良局田家炳小學｜時間間隔：找結束時間（塔頂決戰）';
+
+        const summary = document.getElementById('gameEndSummary');
+        summary.classList.add('hidden');
+
+        // Build 4 Rescued Building Badges with Custom SVGs
+        const badgesRow = document.getElementById('rescuedBadgesRow');
+        badgesRow.innerHTML = '';
+        for (let k = 0; k < TOWER_QUESTIONS.length; k++) {
+          const item = TOWER_QUESTIONS[k];
+          const badge = document.createElement('div');
+          badge.className = 'rescued-building-badge';
+          badge.innerHTML =
+            (ART_SVGS[item.artKey] || '') +
+            '<span>✅ ' + item.shopName + '</span>';
+          badgesRow.appendChild(badge);
+        }
+
+        // Compute stats
+        let trialsDone = 0;
+        for (let i = 0; i < TRIAL_QUESTIONS.length; i++) {
+          if (state.solvedIds.has(TRIAL_QUESTIONS[i].id)) trialsDone++;
+        }
+        let towerDone = 0;
+        for (let j = 0; j < TOWER_QUESTIONS.length; j++) {
+          if (state.solvedIds.has(TOWER_QUESTIONS[j].id)) towerDone++;
+        }
+        document.getElementById('statTrials').textContent = trialsDone + ' / 4';
+        document.getElementById('statTower').textContent = towerDone + ' / 4';
+        document.getElementById('statGems').textContent = String(state.solvedIds.size);
+
+        const honorEl = document.getElementById('guardianHonorBadge');
+        const totalSolved = trialsDone + towerDone;
+        if (totalSolved >= 8) {
+          honorEl.textContent = '🏅 守護者榮譽稱號：傳奇時光大守護者';
+        } else if (totalSolved >= 5) {
+          honorEl.textContent = '🛡️ 守護者榮譽稱號：勇猛時光守護者';
+        } else {
+          honorEl.textContent = '✨ 守護者榮譽稱號：見習時光守護者';
+        }
+
+        playBossRumble();
+
+        const flash = document.getElementById('flashOverlay');
+        flash.classList.remove('do-flash');
+        void flash.offsetWidth;
+        flash.classList.add('do-flash');
+
+        const bossCard = document.getElementById('bossCard');
+        bossCard.classList.remove('do-boss-shake');
+        void bossCard.offsetWidth;
+        bossCard.classList.add('do-boss-shake');
+
+        if (state.bossTimer) clearTimeout(state.bossTimer);
+        state.bossTimer = setTimeout(function () {
+          summary.classList.remove('hidden');
+          playSuccessSound();
+          launchConfetti();
+        }, 1600);
+      }
+
+      window.restartGame = function () {
+        if (state.bossTimer) {
+          clearTimeout(state.bossTimer);
+          state.bossTimer = null;
+        }
+        state.solvedIds.clear();
+        updateGems();
+        state.screen = 'intro';
+        document.getElementById('headerStageLabel').textContent = '保良局田家炳小學｜時間間隔：找結束時間';
+        showOnlyScreen('screenIntro');
+        playKeySound();
+      };
+
+      /* ==========================================================
+       * 14. TEACHER JUMP MODAL WITH AUTO-RELOCKING "1999" PASSCODE
+       * ========================================================== */
+      window.openTeacherModal = function () {
+        playKeySound();
+        state.teacherModalOpen = true;
+        state.teacherUnlocked = false;
+        state.teacherInput = '';
+
+        document.getElementById('teacherModalTitle').textContent = '老師跳關驗證';
+        document.getElementById('teacherLockView').classList.remove('hidden');
+        document.getElementById('teacherMenuView').classList.add('hidden');
+        document.getElementById('teacherLockMsg').textContent = '';
+        renderDigitBoxes('teacherDigitBoxes', '', true);
+
+        document.getElementById('teacherModal').classList.remove('hidden');
+      };
+
+      window.closeTeacherModal = function () {
+        state.teacherModalOpen = false;
+        state.teacherUnlocked = false;
+        state.teacherInput = '';
+        document.getElementById('teacherModal').classList.add('hidden');
+      };
+
+      window.onModalBackdropClick = function (e) {
+        if (e.target && e.target.id === 'teacherModal') {
+          window.closeTeacherModal();
+        }
+      };
+
+      window.pressTeacherDigit = function (d) {
+        if (!state.teacherModalOpen || state.teacherUnlocked || state.teacherInput.length >= 4) return;
+        playKeySound();
+        state.teacherInput += d;
+        document.getElementById('teacherLockMsg').textContent = '';
+        renderDigitBoxes('teacherDigitBoxes', state.teacherInput, true);
+      };
+
+      window.clearTeacherDigits = function () {
+        if (!state.teacherModalOpen || state.teacherUnlocked) return;
+        playKeySound();
+        state.teacherInput = '';
+        document.getElementById('teacherLockMsg').textContent = '';
+        renderDigitBoxes('teacherDigitBoxes', '', true);
+      };
+
+      window.submitTeacherPasscode = function () {
+        if (!state.teacherModalOpen || state.teacherUnlocked) return;
+        const msg = document.getElementById('teacherLockMsg');
+        if (state.teacherInput === TEACHER_PASSCODE) {
+          playUnlockSound();
+          state.teacherUnlocked = true;
+          document.getElementById('teacherModalTitle').textContent = '老師課堂快速跳關選單';
+          document.getElementById('teacherLockView').classList.add('hidden');
+          document.getElementById('teacherMenuView').classList.remove('hidden');
+        } else {
+          playErrorSound();
+          msg.textContent = (state.teacherInput.length < 4)
+            ? '請輸入四位老師密碼！'
+            : '老師密碼錯誤，無法解鎖！';
+          const boxRow = document.getElementById('teacherDigitBoxes');
+          boxRow.classList.remove('shake');
+          void boxRow.offsetWidth;
+          boxRow.classList.add('shake');
+          state.teacherInput = '';
+          setTimeout(function () {
+            renderDigitBoxes('teacherDigitBoxes', '', true);
+          }, 300);
+        }
+      };
+
+      window.jumpTo = function (target, idx) {
+        window.closeTeacherModal();
+        if (target === 'intro') {
+          state.screen = 'intro';
+          document.getElementById('headerStageLabel').textContent = '保良局田家炳小學｜時間間隔：找結束時間';
+          showOnlyScreen('screenIntro');
+        } else if (target === 'trial') {
+          loadQuestion('trial', idx || 0);
+        } else if (target === 'gate') {
+          openPasswordGate();
+        } else if (target === 'tower') {
+          loadQuestion('tower', idx || 0);
+        } else if (target === 'boss') {
+          openBossFinale();
+        }
+      };
+
+      /* ==========================================================
+       * 15. PHYSICAL KEYBOARD SUPPORT FOR PASSCODE SCREENS
+       * ========================================================== */
+      window.addEventListener('keydown', function (e) {
+        if (state.teacherModalOpen && !state.teacherUnlocked) {
+          if (e.key >= '0' && e.key <= '9') {
+            window.pressTeacherDigit(e.key);
+          } else if (e.key === 'Backspace') {
+            state.teacherInput = state.teacherInput.slice(0, -1);
+            renderDigitBoxes('teacherDigitBoxes', state.teacherInput, true);
+          } else if (e.key === 'Enter') {
+            window.submitTeacherPasscode();
+          } else if (e.key === 'Escape') {
+            window.closeTeacherModal();
+          }
+          return;
+        }
+
+        if (state.teacherModalOpen && e.key === 'Escape') {
+          window.closeTeacherModal();
+          return;
+        }
+
+        if (state.screen === 'gate') {
+          if (e.key >= '0' && e.key <= '9') {
+            window.pressGateDigit(e.key);
+          } else if (e.key === 'Backspace') {
+            state.gateInput = state.gateInput.slice(0, -1);
+            renderDigitBoxes('gateDigitBoxes', state.gateInput, false);
+          } else if (e.key === 'Enter') {
+            window.submitGatePasscode();
+          }
+        }
+      });
+
+      /* ==========================================================
+       * 16. CONFETTI CELEBRATION
+       * ========================================================== */
+      function launchConfetti() {
+        const colors = ['#fbbf24', '#34d399', '#38bdf8', '#fb7185', '#a855f7', '#ffffff'];
+        for (let i = 0; i < 32; i++) {
+          const el = document.createElement('div');
+          el.className = 'confetti-piece';
+          el.style.left = (Math.random() * 100).toFixed(1) + 'vw';
+          el.style.backgroundColor = colors[i % colors.length];
+          el.style.animationDuration = (1.5 + Math.random() * 1.3).toFixed(2) + 's';
+          el.style.animationDelay = (Math.random() * 0.2).toFixed(2) + 's';
+          document.body.appendChild(el);
+          setTimeout(function () {
+            if (el.parentNode) el.parentNode.removeChild(el);
+          }, 3000);
+        }
+      }
+
+      /* ==========================================================
+       * 17. STARTUP INITIALIZATION
+       * ========================================================== */
+      function initApp() {
+        buildStaticClockFace();
+        initClockDragging();
+        updateGems();
+        updateFullscreenLabels();
+        renderClock();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
